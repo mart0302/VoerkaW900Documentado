@@ -1,0 +1,44 @@
+{
+  "id": "2603151",
+  "name": "w900",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "2423300",
+      "name": "无数据",
+      "font_class": "wushuju",
+      "unicode": "e642",
+      "unicode_decimal": 58946
+    },
+    {
+      "icon_id": "16050278",
+      "name": "认证",
+      "font_class": "renzheng",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "15429679",
+      "name": "资产处理管理 goods/ppe/archivesHandle",
+      "font_class": "goodsppearchivesHandle",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "21189952",
+      "name": "断开",
+      "font_class": "duankai",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "6986897",
+      "name": "translate",
+      "font_class": "translate",
+      "unicode": "e8cc",
+      "unicode_decimal": 59596
+    }
+  ]
+}

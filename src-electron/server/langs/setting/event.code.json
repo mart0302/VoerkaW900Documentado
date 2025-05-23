@@ -1,0 +1,57 @@
+{
+	"zh": {
+		"1001": "状态变更",
+		"1002": "属性变更",
+		"1004": "关机"
+	},
+	"en": {
+		"1001": "Status Changed",
+		"1002": "Attributes Changed",
+		"1004": "Shutdown"
+	},
+	"ru": {
+		"1001": "Статус изменен",
+		"1002": "Атрибуты изменены",
+		"1004": "Неисправность"
+	},
+	"fr": {
+		"1001": "Statut modifié",
+		"1002": "Attributs modifiés",
+		"1004": "Fermer"
+	},
+	"ar": {
+		"1001": "تغير الوضع",
+		"1002": "السمات تغيرت",
+		"1004": "اغلق"
+	},
+	"es": {
+		"1001": "Estado cambiado",
+		"1002": "Atributos cambiados",
+		"1004": "Apagar"
+	},
+	"pt": {
+		"1001": "Status alterado",
+		"1002": "Atributos Alterados",
+		"1004": "Desligar"
+	},
+	"de": {
+		"1001": "Status geändert",
+		"1002": "Attribute geändert",
+		"1004": "Stilllegen"
+	},
+	"pl": {
+		"1001": "Zmieniono status",
+		"1002": "Zmieniono atrybuty",
+		"1004": "Zamknąć"
+	},
+	"tr": {
+		"1001": "Durum Değiştirildi",
+		"1002": "Özellikler Değiştirildi",
+		"1004": "Kapat"
+	},
+	"ja": {
+		"1001": "ステータスが変更されました",
+		"1002": "属性が変更されました",
+		"1004": "シャットダウン"
+	}
+}

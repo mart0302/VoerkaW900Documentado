@@ -1,0 +1,81 @@
+const httpStatus = require('http-status')
+const { Op } = require('sequelize')
+const fs = require('fs-extra')
+const path = require('path')
+const { upload: uploadConfig } = requireConfig('vars')
+const { package: packageConfig } = uploadConfig
+const { destination } = packageConfig
+const packagesPath = appPath.resolve.data(destination)
+
+exports.load = async (req, res, next, id) => {
+	try {
+		const package = await $db.Package.findByPk(id)
+		if (!package) {
+			throw $APIError.NotFound()
+		}
+		req.locals = { package }
+		return next()
+	} catch (error) {
+		return next(error)
+	}
+}
+
+exports.get = (req, res) => res.json(req.locals.package)
+
+exports.create = async (req, res, next) => {
+	try {
+		let package
+		try {
+			package = await $db.Package.create(req.body)
+		} catch (error) {
+			// 409
+			throw $APIError.Conflict()
+		}
+		res.status(httpStatus.CREATED)
+		return res.json(package)
+	} catch (error) {
+		return next(error)
+	}
+}
+
+exports.list = async (req, res, next) => {
+	try {
+		let { limit, offset, ...query } = req.query
+		//  特别参数的定制查询
+		const qry = {}
+		query.type && (qry.type = { [Op.eq]: query.type })
+
+		const { count: total, rows: data } = await $db.Package.findAndCountAll({
+			limit,
+			offset,
+			where: qry,
+			order: [['updatedAt', 'DESC']]
+		})
+
+		return res.json({
+			limit,
+			offset,
+			total,
+			data
+		})
+	} catch (error) {
+		return next(error)
+	}
+}
+
+exports.remove = async (req, res, next) => {
+	const { package } = req.locals
+	const { id } = package
+	try {
+		// 先删除数据库记录
+		await $db.Package.destroy({
+			where: { id }
+		})
+		// 删除文件
+		fs.removeSync(path.join(packagesPath, id))
+		fs.removeSync(path.join(packagesPath, id + '.zip'))
+		return res.json(package)
+	} catch (error) {
+		return next(error)
+	}
+}

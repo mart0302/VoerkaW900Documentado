@@ -1,0 +1,81 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getIPRange = void 0;
+var ip_1 = require("ip");
+// @ts-ignore
+var ip_address_1 = require("ip-address");
+var getIPv4 = function (ip) {
+    try {
+        return new ip_address_1.Address4(ip);
+    }
+    catch (err) {
+        return null;
+    }
+};
+var getIPv6 = function (ip) {
+    try {
+        return new ip_address_1.Address6(ip);
+    }
+    catch (err) {
+        return null;
+    }
+};
+var getRangev4 = function (ip1, ip2) {
+    var ips = [];
+    var firstAddressLong = ip_1.toLong(ip1);
+    var lastAddressLong = ip_1.toLong(ip2);
+    for (firstAddressLong; firstAddressLong <= lastAddressLong; firstAddressLong++)
+        ips.push(ip_1.fromLong(firstAddressLong));
+    return ips;
+};
+var getRangev6 = function (ip1, ip2) {
+    var ips = [];
+    var firstAddress = new ip_address_1.Address6(ip1);
+    var lastAddress = new ip_address_1.Address6(ip2);
+    for (var i = firstAddress.bigInteger(); i <= lastAddress.bigInteger(); i++) {
+        ips.push(ip_address_1.Address6.fromBigInteger(i).correctForm());
+    }
+    return ips;
+};
+var isCIDR = function (ipCIDR) { return Boolean(ipCIDR.parsedSubnet); };
+var isRange = function (ipRange) { return ipRange.indexOf('-') !== -1; };
+var getIPRange = function (ip1, ip2) {
+    var ip1v4 = getIPv4(ip1);
+    var ip1v6 = getIPv6(ip1);
+    //
+    // Two IPs
+    //
+    if (ip2) {
+        // IPv4
+        var ip2v4 = getIPv4(ip2);
+        if (ip1v4.valid && ip2v4.valid && !ip1v4.parsedSubnet && !ip2v4.parsedSubnet) {
+            return getRangev4(ip1v4.correctForm(), ip2v4.correctForm());
+        }
+        // IPv6
+        var ip2v6 = getIPv6(ip2);
+        if (ip1v6.valid && ip2v6.valid && !ip1v6.parsedSubnet && !ip2v6.parsedSubnet) {
+            return getRangev6(ip1v6.correctForm(), ip2v6.correctForm());
+        }
+        // IPs do not match version, or are invalid
+        throw new Error('Cannot get range of two IPs if they are not both valid and the same version');
+    }
+    //
+    // CIDR
+    //
+    if (isCIDR(ip1v4)) {
+        return getRangev4(ip1v4.startAddress().correctForm(), ip1v4.endAddress().correctForm());
+    }
+    if (isCIDR(ip1v6)) {
+        return getRangev6(ip1v6.startAddress().correctForm(), ip1v6.endAddress().correctForm());
+    }
+    //
+    // Hyphenated Range
+    //
+    if (isRange(ip1)) {
+        var _a = ip1.split('-'), firstAddress = _a[0], lastAddress = _a[1];
+        return getIPRange(firstAddress, lastAddress);
+    }
+    // Did not match any of the above
+    throw new Error('IP supplied is not valid');
+};
+exports.getIPRange = getIPRange;

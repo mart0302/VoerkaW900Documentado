@@ -1,12 +1,12 @@
 const { app, BrowserWindow, Menu, nativeTheme, globalShortcut, ipcMain, Tray } = require('electron')
-// 修正NODE_ENV
+// Corregir NODE_ENV
 if (app.isPackaged) {
 	process.env.NODE_ENV = 'production'
 } else {
 	process.env.NODE_ENV = 'development'
 }
 
-// 其他引入
+// Otras importaciones
 $log = require('electron-log')
 const path = require('path')
 const fs = require('fs')
@@ -18,12 +18,12 @@ const pkg = require('../package.json')
 const { main, installResp } = require('./app')
 const appPath = require('./app-paths')
 
-// 路径
-// 应用数据
+// camino
+// datos de la aplicación
 const AppDataPath = app.getPath('appData')
-// 用户数据
+//datos de usuario
 const UserDataPath = app.getPath('userData')
-// 日志
+// registro
 const LogsPath = devOrProd(
 	() => path.join(app.getPath('appData'), pkg.name, 'logs'),
 	() => app.getPath('logs')
@@ -36,8 +36,7 @@ function archiveLog(file) {
 	date = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + '-' + date.getTime()
 	try {
 		fs.renameSync(file, path.join(info.dir, date + info.ext))
-		// 遍历目录文件，如果超出15个，判断日期，超过15天，则删除最早一个文件
-		const files = fs.readdirSync(info.dir)
+// Recorre los archivos del directorio, si hay más de 15, determina la fecha, si son más de 15 días, elimina el archivo más antiguo		const files = fs.readdirSync(info.dir)
 		if (files.length > 15) {
 			const today = dayjs()
 			files.forEach((item, index) => {
@@ -60,26 +59,25 @@ function archiveLog(file) {
 }
 $log.transports.file.maxSize = 41943040 // 40M
 $log.transports.file.archiveLog = archiveLog
-
-// 当前exe同级目录，exe位置:app.getPath('exe')
+// Directorio del mismo nivel del exe actual, ubicación del exe: app.getPath('exe')
 const WorkPath = process.cwd()
-// 前端dist位置
+//Ubicación de distribución del front-end
 const WebPath = path.join(__dirname, `../`)
 
-// 主窗口
+//ventana principal
 let mainWindow
 let force_quit = false
-// 持久化配置
+//Configuración persistente
 const store = new Store()
 
-/** 开始执行 */
-// 启动
+/** Iniciar ejecución */
+// puesta en marcha
 bootstrap()
 
-// 创建window对象
+// Crea un objeto de ventana
 async function createWindow() {
-	/**
-	 * Initial window options
+/**
+	 * Opciones de ventana inicial
 	 */
 	let icon = appPath.resolve.data('favicon.ico')
 	icon = fs.existsSync(icon) ? icon : path.join(__dirname, './icons/icon.ico')
@@ -92,7 +90,7 @@ async function createWindow() {
 		resizable: true,
 		useContentSize: true,
 		icon,
-		// autoHideMenuBar: true,
+	// autoHideMenuBar: verdadero,
 		webPreferences: {
 			webSecurity: false,
 			contextIsolation: true,
@@ -102,41 +100,40 @@ async function createWindow() {
 
 	devOrProd(
 		() => {
-			// if on DEV or Production with debug enabled
+			// si está en DEV o Producción con la depuración habilitada
 			mainWindow.webContents.openDevTools()
 		},
 		() => {
-			// 生产环境关闭菜单栏
+			// Cerrar la barra de menú en el entorno de producción
 			Menu.setApplicationMenu(null)
-			// we're on production; no access to devtools pls
-			// mainWindow.webContents.on('devtools-opened', () => {
-			// 	mainWindow.webContents.closeDevTools()
+			// ventana principal.webContents.on('devtools-opened', () => {
+			// ventana principal.webContents.closeDevTools()
 			// })
 		}
 	)
 
-	/** window事件监听 */
+	/** Supervisión de eventos de ventana */
 	mainWindow.on('closed', () => {
 		mainWindow = null
 	})
 
-	// 注册快捷键
+	//Registrar teclas de acceso directo
 	installShortCut(mainWindow)
 
-	// 打印信息
+	// imprimir información
 	printAppInfo()
 
-	// 个性化代码
+	//Código de personalización
 	main({ store, mainWindow })
 
-	// 加载页面
+	//Cargar página
 	mainWindow.loadURL(await getAppUrl())
-	// 触发关闭时触发
+	// Se activa cuando se cierra el disparador
 	mainWindow.on('close', event => {
 		if (!force_quit) {
-			// 截获 close 默认行为
+			//Interceptar el comportamiento de cierre predeterminado
 			event.preventDefault()
-			// 点击关闭时触发close事件，我们按照之前的思路在关闭时，隐藏窗口，隐藏任务栏窗口
+			// Al hacer clic en Cerrar, se activa el evento de cierre. Seguimos la idea anterior de ocultar la ventana y la ventana de la barra de tareas al cerrar.
 			mainWindow.hide()
 			mainWindow.setSkipTaskbar(true)
 		}
@@ -149,14 +146,14 @@ async function createWindow() {
 		tray.destroy()
 	})
 
-	// 设置托盘图标
+	//Establecer icono de bandeja
 	const iconUrl = appPath.resolve.data('favicon.ico')
 	const exitIcon = appPath.resolve.public('close.png')
 	tray = new Tray(iconUrl)
-	// 设置右键菜单列表
+	// Establecer la lista del menú de clic derecho
 	const trayContextMenu = Menu.buildFromTemplate([
-		// {
-		// 	type: 'separator'
+	// {
+		// tipo: 'separador'
 		// },
 		{
 			icon: exitIcon,
@@ -169,21 +166,21 @@ async function createWindow() {
 			}
 		}
 	])
-	// 监听通讯songName设置hover信息
+	// Escuche la comunicación songName y configure la información al pasar el mouse
 	ipcMain.on('songName', async (_e, data) => {
 		tray.setToolTip(data)
 	})
-	// 监听鼠标左键信息
+	//Monitorear la información del botón izquierdo del ratón
 	tray.on('click', () => {
 		mainWindow.show()
 	})
 	tray.setContextMenu(trayContextMenu)
-	// 监听鼠标右键信息,用以下方式，点击图标没有效果
-	// tray.on('right-click', () => {
-	// 	tray.popUpContextMenu(trayContextMenu)
+// Escuche la información del clic derecho. Hacer clic en el icono no tiene ningún efecto de la siguiente manera:
+	// tray.on('clic derecho', () => {
+	// bandeja.popUpContextMenu(bandejaContextMenu)
 	// })
 
-	// 监听退出系统事件
+	// Escuchar eventos de salida del sistema
 	installResp('app-quit', (event, data) => {
 		force_quit = true
 		tray.destroy()
@@ -192,7 +189,7 @@ async function createWindow() {
 	})
 }
 
-// 【改动】获取当前appUrl
+// [Cambio] Obtener la URL de la aplicación actual
 async function getAppUrl() {
 	return devOrProd(
 		() => {
@@ -202,13 +199,13 @@ async function getAppUrl() {
 		},
 		async () => {
 			// prod
-			// 生产环境会将前端打包放到server的public目录下
+			// El entorno de producción empaquetará el front-end en el directorio público del servidor
 			return `http://localhost:${$userConfig.port}`
 		}
 	)
 }
 
-// 启动静态服务器
+// Iniciar el servidor estático
 function serve(port) {
 	return new Promise(resolve => {
 		const app = express()
@@ -220,7 +217,7 @@ function serve(port) {
 	})
 }
 
-// 判断环境执行回调
+// Determinar la devolución de llamada de ejecución del entorno
 function devOrProd(devCall, prodCall) {
 	if (process.env.NODE_ENV === 'development') {
 		if (devCall) {
@@ -233,15 +230,15 @@ function devOrProd(devCall, prodCall) {
 	}
 }
 
-// 启动
+// puesta en marcha
 function bootstrap() {
-	// 单例
+	// singleton
 	const gotTheLock = app.requestSingleInstanceLock()
 	if (!gotTheLock) {
 		app.quit()
 	} else {
 		app.on('second-instance', (event, commandLine, workingDirectory) => {
-			// 当运行第二个实例时,将会聚焦到myWindow这个窗口
+// Al ejecutar la segunda instancia, el foco estará en la ventana myWindow
 			if (mainWindow) {
 				if (mainWindow.isMinimized()) mainWindow.restore()
 				mainWindow.focus()

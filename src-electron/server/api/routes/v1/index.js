@@ -9,7 +9,6 @@ const { activated } = require('../../middlewares')
 router.get('/status', (req, res) => res.send('OK'))
 
 // api
-
 router.use('/app', require('./app.route'))
 router.use('/auth', require('./auth.route'))
 router.use('/user', require('./user.route'))

@@ -1,7 +1,7 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 设备认证
+	//Autenticación del dispositivo
 	authorizeDevices: {
 		body: {
 			devices: Joi.array().items(
@@ -13,7 +13,7 @@ module.exports = {
 					version: Joi.string().empty('').default(''), // 固件版本
 					networks: Joi.array().items(
 						Joi.object({
-							// 网络
+							// red
 							dhcp: Joi.boolean().default(false),
 							dnsAlter: Joi.string()
 								.ip({ version: ['ipv4'] })
@@ -47,12 +47,12 @@ module.exports = {
 						domain: Joi.string().empty('').default('')
 					}),
 					location: Joi.object({
-						// 安装位置， { label, long, lati }
+						// Ubicación de la instalación, {etiqueta, longitud, latitud}
 						label: Joi.string().empty('').default(''),
 						long: Joi.number().default(0),
 						lati: Joi.number().default(0)
 					}),
-					// 以下数据仅做保留，其实没有用
+					// Los siguientes datos son solo reservados y en realidad son inútiles.
 					source: Joi.string().empty('').default(''),
 					model: Joi.string().empty('').default(''),
 					wifi: Joi.object({
@@ -70,7 +70,7 @@ module.exports = {
 		}
 	},
 
-	// 设备升级
+	//Actualización del dispositivo
 	upgradeDevices: {
 		body: {
 			devices: Joi.array().items(Joi.string().min(12).max(12).lowercase()).required(),
@@ -78,17 +78,17 @@ module.exports = {
 		}
 	},
 
-	// 手动创建设备
+	// Crear un dispositivo manualmente
 	createDevice: {
 		body: {
 			sn: Joi.string().min(12).max(12).lowercase().required(),
 			parent: Joi.string().empty('').default(''),
-			type: Joi.string().required(), // 设备类型
-			title: Joi.string().empty('').default(''), // 设备名称
-			version: Joi.string().empty('').default(''), // 固件版本
+			type: Joi.string().required(), // tipo de dispositivo
+			title: Joi.string().empty('').default(''), // nombre del dispositivo
+			version: Joi.string().empty('').default(''), //versión de firmware
 			networks: Joi.array().items(
 				Joi.object({
-					// 网络
+					// red
 					dhcp: Joi.boolean().default(false),
 					dnsAlter: Joi.string()
 						.ip({ version: ['ipv4'] })
@@ -122,12 +122,12 @@ module.exports = {
 				domain: Joi.string().empty('').default('')
 			}),
 			location: Joi.object({
-				// 安装位置， { label, long, lati }
+				// Ubicación de la instalación, {etiqueta, longitud, latitud}
 				label: Joi.string().empty('').default(''),
 				long: Joi.number().default(0),
 				lati: Joi.number().default(0)
 			}),
-			// 以下数据仅做保留，其实没有用
+			// Los siguientes datos son solo reservados y en realidad son inútiles.
 			source: Joi.string().empty('').default('MULTICAST'),
 			model: Joi.string().empty('').default(''),
 			wifi: Joi.object({
@@ -140,24 +140,24 @@ module.exports = {
 			authorized: Joi.boolean().default(false),
 			configPort: Joi.number().default(0),
 			header: Joi.string().empty('').default('meeyi'),
-			// 新增个性化配置属性
+			// Agregar propiedades de configuración personalizadas
 			attrs: Joi.object({
-				// 不同设备，配置不一样
+				// Diferentes dispositivos tienen diferentes configuraciones
 			}),
 			online: Joi.boolean()
 		}
 	},
 
-	// 更新设备
+	//Actualizar dispositivo
 	updateDevice: {
 		body: {
 			parent: Joi.string().empty(''),
-			type: Joi.string(), // 设备类型
-			title: Joi.string().empty(''), // 设备名称
-			version: Joi.string().empty(''), // 固件版本
+			type: Joi.string(), // tipo de dispositivo
+			title: Joi.string().empty(''), // nombre del dispositivo
+			version: Joi.string().empty(''), //versión de firmware
 			networks: Joi.array().items(
 				Joi.object({
-					// 网络
+					// red
 					dhcp: Joi.boolean().default(false),
 					dnsAlter: Joi.string()
 						.ip({ version: ['ipv4'] })
@@ -191,12 +191,12 @@ module.exports = {
 				domain: Joi.string().empty('')
 			}),
 			location: Joi.object({
-				// 安装位置， { label, long, lati }
+				// Ubicación de la instalación, {etiqueta, longitud, latitud}
 				label: Joi.string().empty(''),
 				long: Joi.number(),
 				lati: Joi.number()
 			}),
-			// 以下数据仅做保留，其实没有用
+			// Los siguientes datos son solo reservados y en realidad son inútiles.
 			source: Joi.string().empty(''),
 			model: Joi.string().empty(''),
 			wifi: Joi.object({
@@ -209,21 +209,21 @@ module.exports = {
 			authorized: Joi.boolean(),
 			configPort: Joi.number(),
 			header: Joi.string().empty(''),
-			// 新增个性化配置属性
+			// Agregar propiedades de configuración personalizadas
 			attrs: Joi.object({
-				// 不同设备，配置不一样
+				// Diferentes dispositivos tienen diferentes configuraciones
 			})
 		}
 	},
 
-	// 批量删除
+	// eliminación por lotes
 	removeDevices: {
 		body: {
 			ids: Joi.array().items(Joi.string().min(12).max(12))
 		}
 	},
 
-	// 获取列表
+	// Obtener la lista
 	listDevices: {
 		query: {
 			limit: Joi.number().integer().min(1).max(100).default(20),

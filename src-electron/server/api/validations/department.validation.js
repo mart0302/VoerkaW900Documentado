@@ -35,7 +35,7 @@ module.exports = {
 			)
 		}
 	},
-	// 查询列表
+	// lista de consultas
 	listDepartment: {
 		query: {
 			title: Joi.string(),

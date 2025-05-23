@@ -1,22 +1,22 @@
 const path = require("path");
 const { Op } = require("sequelize");
 appPath = require("../app-paths");
-// require config目录下的模块
+// Requiere módulos del directorio `config`
 requireData = appPath.require.data;
-// require api目录下的模块
+// Requiere módulos del directorio `api`
 requireApi = (mod) => appPath.require.server(path.join("api", mod));
-// require config目录下的模块
+// Requiere módulos del directorio `config` (repetido, otro estilo)
 requireConfig = (mod) => appPath.require.server(path.join("config", mod));
 
-// 配置
+// Configuración
 const { env } = require("./config/vars");
 const logger = require("./config/logger");
 
-// 全局对象
+// Objeto global
 $APIError = require("./api/utils/APIError");
-// 加载数据库配置
+// Cargar configuración de la base de datos
 const Settings = require("./config/settings");
-// 创建messager
+// Crear sistema de mensajería
 const createMessager = require("./config/messager/index");
 
 // 全局对象

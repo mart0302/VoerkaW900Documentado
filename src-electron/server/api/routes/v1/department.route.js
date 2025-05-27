@@ -14,14 +14,14 @@ router.route('/list').get(authorize(ADMIN, [ROUTES.Department, ROUTES.User, ROUT
 router
 	.route('/query')
 	.get(authorize(ADMIN, [ROUTES.Department, ROUTES.Resource]), validate(listDepartment), controller.getQuery)
-// 获取部门
+// Obtener departamento
 router
 	.route('/:id')
 	.get(authorize(ADMIN, [ROUTES.Department, ROUTES.User, ROUTES.Resource, ROUTES.Shift]), controller.get)
 	.patch(authorize(ADMIN, [ROUTES.Department, ROUTES.Resource]), validate(updateDepartment), controller.update)
 	.delete(authorize(ADMIN, [ROUTES.Department, ROUTES.Resource]), controller.remove)
 
-// 创建部门
+// Crear departamento
 router
 	.route('/')
 	.post(authorize(ADMIN, [ROUTES.Department, ROUTES.Resource]), validate(createDepartment), controller.create)

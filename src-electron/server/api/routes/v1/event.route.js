@@ -10,17 +10,17 @@ const router = express.Router()
 
 router.param('id', controller.load)
 
-// 获取\更新\删除
+// Obtener/Actualizar/Eliminar
 router
 	.route('/:id')
 	.get(authorize(), controller.get)
 	.patch(authorize(ADMIN, [ROUTES.DeviceEvent, ROUTES.Alarm, ROUTES.Record]), controller.update)
 	.delete(authorize(ADMIN, [ROUTES.DeviceEvent, ROUTES.Alarm, ROUTES.Record]), controller.remove)
 
-// 处理事务
+// Procesar transacción
 router.route('/:id/handle').post(validate(handleAlarm), controller.handle)
 
-// 获取列表\批量删除\创建
+// Obtener lista/Eliminar múltiples/Crear
 router
 	.route('/')
 	.post(authorize(ADMIN, [ROUTES.DeviceEvent, ROUTES.Alarm, ROUTES.Record]), controller.create)

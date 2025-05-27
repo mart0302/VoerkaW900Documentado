@@ -3,9 +3,9 @@ const fs = require('fs')
 
 const encryptFile = async (algorithm, path) => {
 	const hash = createHash(algorithm)
-	// 一口气读取
+	// Lectura completa
 	// hash.update(fs.readFileSync(path))
-	// 分块读取
+	// Lectura por bloques
 	return new Promise((r, j) => {
 		const read = fs.createReadStream(path)
 		read.on('data', chunk => {
@@ -17,7 +17,7 @@ const encryptFile = async (algorithm, path) => {
 		read.on('error', error => {
 			j(error)
 		})
-		//让文件流开始'流'动起来
+		// Iniciar el flujo de lectura del archivo
 		read.resume()
 	})
 }

@@ -10,14 +10,14 @@ const router = express.Router()
 
 router.param('id', controller.load)
 
-// 获取\更新\删除
+// Obtener/Actualizar/Eliminar
 router
 	.route('/:id')
 	.get(authorize(ADMIN, [ROUTES.Resource, ROUTES.Shift]), controller.get)
 	.patch(authorize(ADMIN, [ROUTES.Resource, ROUTES.Shift]), validate(updateGroup), controller.update)
 	.delete(authorize(ADMIN, [ROUTES.Resource, ROUTES.Shift]), controller.remove)
 
-// 获取列表\批量删除\创建
+// Obtener lista/Eliminar múltiples/Crear
 router
 	.route('/')
 	.post(authorize(ADMIN, [ROUTES.Resource, ROUTES.Shift]), validate(updateGroup), controller.create)

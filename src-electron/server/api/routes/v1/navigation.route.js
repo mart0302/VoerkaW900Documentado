@@ -14,14 +14,14 @@ const router = express.Router()
 
 router.param('id', controller.load)
 
-// 获取导航节点
+// Obtener nodo de navegación
 router
 	.route('/:id')
 	.get(controller.get)
 	.patch(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), validate(updateNavigation), controller.update)
 	.delete(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), controller.remove)
 
-// 创建导航节点
+// Crear nodo de navegación
 router
 	.route('/')
 	.post(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), validate(createNavigation), controller.create)
@@ -33,6 +33,6 @@ router
 		authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]),
 		validate(getIntercomDevice),
 		controller.getIntercomDevice
-	) // 获取通知列表
+	) // Obtener lista de intercomunicadores
 
 module.exports = router

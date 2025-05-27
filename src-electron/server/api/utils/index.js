@@ -14,12 +14,12 @@ exports.mergeDeepRight = function (object, other) {
 	return mergeWith(cloneDeep(object), other, customizer)
 }
 
-// 缓存
+// Caché
 exports.useCache = function useCache(fetch, { max = 200, life = 3 * 60 * 1000, onUpdate = () => {} } = {}) {
-	// 缓存池
+	// Pool de caché
 	const caches = {}
 
-	// 清理缓存
+	// Limpiar caché
 	function cleanCache() {
 		const hits = Object.entries(caches)
 		const nowTime = Date.now()
@@ -33,7 +33,7 @@ exports.useCache = function useCache(fetch, { max = 200, life = 3 * 60 * 1000, o
 		}
 	}
 
-	// 从缓存中获取
+	// Obtener del caché
 	async function get(id) {
 		const hit = caches[id]
 		if (!hit || hit.expired < Date.now()) {
@@ -49,38 +49,38 @@ exports.useCache = function useCache(fetch, { max = 200, life = 3 * 60 * 1000, o
 		}
 	}
 
-	// 设置缓存
+	// Establecer caché
 	async function set(id, value = null) {
 		if (value) {
-			// 时间重新计算
+			// Recalcular el tiempo
 			caches[id] = { expired: Date.now() + life, value }
 		} else {
 			delete caches[id]
 		}
 	}
 
-	// 更新机制
-	// 命名有问题，后面优化
+	// Mecanismo de actualización
+	// Hay un problema con el nombre, se optimizará más adelante
 	onUpdate(set)
 
-	// 查询
+	// Consulta
 	return async id => {
-		// 获取
+		// Obtener
 		const value = await get(id)
 
-		// 维护缓存
+		// Mantener caché
 		cleanCache()
 
 		return value
 	}
 }
 
-// 缓存 key-value缓存
+// Caché key-value
 exports.useKVCache = function useCache({ max = 200, life = 60 * 60 * 1000 } = {}) {
-	// 缓存池
+	// Pool de caché
 	const caches = {}
 
-	// 清理缓存
+	// Limpiar caché
 	function cleanCache() {
 		const hits = Object.entries(caches)
 		const nowTime = Date.now()
@@ -94,11 +94,11 @@ exports.useKVCache = function useCache({ max = 200, life = 60 * 60 * 1000 } = {}
 		}
 	}
 
-	// 从缓存中获取
+	// Obtener del caché
 	function get(key) {
-		// 先清缓存
+		// Primero limpiar caché
 		cleanCache()
-		// 再获取
+		// Luego obtener
 		const hit = caches[key]
 		if (!hit || hit.expired < Date.now()) {
 			delete caches[key]
@@ -108,24 +108,24 @@ exports.useKVCache = function useCache({ max = 200, life = 60 * 60 * 1000 } = {}
 		}
 	}
 
-	// 设置缓存
+	// Establecer caché
 	function set(key, value = undefined) {
 		if (value) {
-			// 时间重新计算
+			// Recalcular el tiempo
 			caches[key] = { expired: Date.now() + life, value }
 		} else {
 			delete caches[key]
 		}
 	}
 
-	// 查询
+	// Consulta
 	return {
 		get,
 		set
 	}
 }
 
-// 生成token
+// Generar token
 exports.genToken = function ({ id, type = RES_TYPE_USER }) {
 	const payload = {
 		exp: moment().add(jwtExpirationDays, 'days').unix(),
@@ -136,7 +136,7 @@ exports.genToken = function ({ id, type = RES_TYPE_USER }) {
 	return jwt.encode(payload, jwtSecret)
 }
 
-// 字符串转数组
+// Convertir cadena a array
 function parseArrayNum(str) {
 	return str
 		.split(',')
@@ -145,7 +145,7 @@ function parseArrayNum(str) {
 }
 exports.parseArrayNum = parseArrayNum
 
-// 字符串转时间查询
+// Convertir cadena a consulta de tiempo
 exports.parseTimeQuyer = function (str) {
 	let empty = true
 	const query = {}
@@ -158,6 +158,6 @@ exports.parseTimeQuyer = function (str) {
 		query[Op.lte] = times[1]
 		empty = false
 	}
-	// isEmpty 判断不了Symbol
+	// isEmpty no puede evaluar Symbol
 	return empty ? undefined : query
 }

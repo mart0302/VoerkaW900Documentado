@@ -7,16 +7,16 @@ const { callDuration, callResult, callStatistics, alarmStatistics } = require('.
 
 const router = express.Router()
 
-// 呼叫时长分析
+// Análisis de duración de llamadas
 router.route('/callDuration').post(authorize(), validate(callDuration), controller.callDuration)
 
-// 呼叫结果分析
+// Análisis de resultados de llamadas
 router.route('/callResult').post(authorize(), validate(callResult), controller.callResult)
 
-// 呼叫统计
+// Estadísticas de llamadas
 router.route('/callStatistics').post(authorize(), validate(callStatistics), controller.callStatistics)
 
-// 告警统计
+// Estadísticas de alarmas
 router.route('/alarmStatistics').post(authorize(), validate(alarmStatistics), controller.alarmStatistics)
 
 module.exports = router

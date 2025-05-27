@@ -8,14 +8,14 @@ const { login, register, resetPassword } = require('../../validations/auth.valid
 
 const router = express.Router()
 
-// 注册
+// Registro
 router
 	.route('/register')
 	.post(authorize(ADMIN, [ROUTES.User, ROUTES.Resource]), validate(register), controller.register)
-// 登入
+// Inicio de sesión
 router.route('/login').post(validate(login), controller.login)
 
-// 重设密码
+// Restablecer contraseña
 router
 	.route('/resetPassword')
 	.post(authorize(ADMIN, [ROUTES.Settings]), validate(resetPassword), controller.resetPassword)

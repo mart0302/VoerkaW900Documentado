@@ -10,17 +10,17 @@ const router = express.Router()
 
 router.param('id', controller.load)
 
-// 获取\更新\删除
+// obtener/actualizar/eliminar
 router
 	.route('/:id')
 	.get(authorize(), controller.get)
 	.patch(authorize(ADMIN, [ROUTES.DeviceEvent, ROUTES.Alarm, ROUTES.Record]), controller.update)
 	.delete(authorize(ADMIN, [ROUTES.DeviceEvent, ROUTES.Alarm, ROUTES.Record]), controller.remove)
 
-// 处理事务
+// procesar transacción
 router.route('/:id/handle').post(validate(handleAlarm), controller.handle)
 
-// 获取列表\批量删除\创建
+// obtener lista/eliminar en lote/crear
 router
 	.route('/')
 	.post(authorize(ADMIN, [ROUTES.DeviceEvent, ROUTES.Alarm, ROUTES.Record]), controller.create)
@@ -45,6 +45,5 @@ router.get('/ultimos', async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
 
 module.exports = router

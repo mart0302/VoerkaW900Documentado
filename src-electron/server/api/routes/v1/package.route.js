@@ -11,7 +11,7 @@ router.route('/:id').get(controller.get).delete(controller.remove)
 
 router
 	.route('/')
-	.post(validate(createPackage), controller.create) // 创建升级包
-	.get(validate(listPackages), controller.list) // 获取升级包列表
+	.post(validate(createPackage), controller.create) // crear paquete de actualización
+	.get(validate(listPackages), controller.list) // obtener lista de paquetes de actualización
 
 module.exports = router

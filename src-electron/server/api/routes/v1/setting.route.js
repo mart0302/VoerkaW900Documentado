@@ -11,7 +11,7 @@ router.param('id', controller.load)
 
 router.route('/:id').get(controller.get).patch(validate(updateSetting), controller.update)
 
-// 获取全部
+// obtener todo
 router.route('/').get(controller.list).post(validate(createSetting), controller.create)
 
 module.exports = router

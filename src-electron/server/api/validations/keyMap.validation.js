@@ -1,28 +1,28 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 创建
+	// crear
 	createKeyMap: {
 		body: {
-			value: Joi.object().required() // { 1: "请求支援", 2: "点菜" }
+			value: Joi.object().required() // { 1: "Solicitar ayuda", 2: "Pedir comida"
 		}
 	},
 
-	// 更新
+	// renovar
 	updateKeyMap: {
 		body: {
-			value: Joi.object().required() // { 1: "请求支援", 2: "点菜" }
+			value: Joi.object().required() // { 1: "Solicitar ayuda", 2: "Pedir comida"
 		}
 	},
 
-	// 批量删除
+	// Eliminación por lotes
 	removeKeyMaps: {
 		body: {
 			ids: Joi.array().items(Joi.number().min(1))
 		}
 	},
 
-	// 获取列表
+	// Obtener lista
 	listKeyMaps: {
 		query: {
 			limit: Joi.number().integer().min(1).max(100).default(20),

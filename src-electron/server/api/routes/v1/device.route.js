@@ -16,14 +16,14 @@ const router = express.Router()
 
 router.param('id', controller.load)
 
-// 获取设备
+// obtener dispositivo
 router
 	.route('/:id')
 	.get(controller.get)
 	.patch(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), validate(updateDevice), controller.update)
 	.delete(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), controller.remove)
 
-// 获取设备列表
+// obtener lista de dispositivos
 router
 	.route('/')
 	.post(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), validate(createDevice), controller.create)
@@ -31,14 +31,14 @@ router
 	.delete(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), validate(removeDevices), controller.removeList)
 
 router.route('/:id/action/:action').post(authorize(), encode, controller.execute)
-// 属性变更
+// cambio de atributos
 router.route('/:id/attrs').post(authorize(), controller.attrs)
-// 设备认证
+// autenticación de dispositivo
 router
 	.route('/authorize')
 	.post(authorize(ADMIN, [ROUTES.DeviceDiscover, ROUTES.Device]), validate(authorizeDevices), controller.authorize)
 
-// 设备升级
+// actualización de dispositivo
 router
 	.route('/upgrade')
 	.post(authorize(ADMIN, [ROUTES.DeviceManage, ROUTES.Device]), validate(upgradeDevices), controller.upgrade)

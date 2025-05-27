@@ -6,10 +6,10 @@ const { upload: uploadConfig } = requireConfig('vars')
 
 const { image: imageConfig, package: packageConfig, audio: audioConfig, temps } = uploadConfig
 
-// 路由
+// rutas
 const router = express.Router()
 
-// 上传图片
+// subir imagen
 router.route('/image').post(
 	authorize(),
 	upload({
@@ -19,7 +19,7 @@ router.route('/image').post(
 	controller.image
 )
 
-// 上传安装包
+// subir paquete de instalación
 router.route('/package').post(
 	authorize(),
 	upload({
@@ -29,7 +29,7 @@ router.route('/package').post(
 	controller.package
 )
 
-// 上传安装包
+// subir audio
 router.route('/audio').post(
 	authorize(),
 	upload({

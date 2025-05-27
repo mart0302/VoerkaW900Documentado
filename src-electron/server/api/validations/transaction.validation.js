@@ -2,32 +2,32 @@ const Joi = require('joi')
 const { TRANSACTION_RESULT } = require('@voerka/messager')
 
 module.exports = {
-	// 批量删除
+	// Eliminación por lotes
 	removeTransactions: {
 		body: {
 			ids: Joi.array().items(Joi.string())
 		}
 	},
 
-	// 获取列表
+	// Obtener lista
 	listTransactions: {
 		query: {
 			limit: Joi.number().integer().min(1).max(1000).default(20),
 			offset: Joi.number().integer().min(0).default(0),
-			title: Joi.string().trim(), // 消息
-			status: Joi.string(), // 告警状态
-			result: Joi.string(), // 告警结果
-			code: Joi.string(), // 按事件编码查找
-			type: Joi.string(), // 事件/告警
-			group: Joi.string(), // 分组查找
-			path: Joi.string(), // 语义路径查找
-			sn: Joi.string(), // 设备
-			startTime: Joi.string(), // 触发时间
-			completeTime: Joi.string() // 处理时间
+			title: Joi.string().trim(), // información
+			status: Joi.string(), // Estado de alarma
+			result: Joi.string(), // Resultados de la alarma
+			code: Joi.string(), // Buscar por código de evento
+			type: Joi.string(), // Eventos/Alarmas
+			group: Joi.string(), // Búsqueda de grupo
+			path: Joi.string(), // Búsqueda de rutas semánticas
+			sn: Joi.string(), // equipo
+			startTime: Joi.string(), // Tiempo de activación
+			completeTime: Joi.string() // Tiempo de procesamiento
 		}
 	},
 
-	// 处理事务
+	// Manejo de transacciones
 	handleTransactions: {
 		body: {
 			result: Joi.number()

@@ -4,7 +4,7 @@ const { parseTimeQuyer } = require('../utils')
 
 const Model = $db.ShiftScheduler
 
-// 加载
+// Cargar
 exports.load = async (req, res, next, id) => {
 	try {
 		const data = await Model.findByPk(id)
@@ -18,7 +18,7 @@ exports.load = async (req, res, next, id) => {
 	}
 }
 
-// 获取
+// Obtener
 exports.get = async (req, res) => {
 	try {
 		const { data } = req.locals
@@ -29,7 +29,7 @@ exports.get = async (req, res) => {
 	}
 }
 
-// 新增
+// Crear nuevo
 exports.create = async (req, res, next) => {
 	try {
 		let data = await Model.create(req.body)
@@ -40,24 +40,24 @@ exports.create = async (req, res, next) => {
 	}
 }
 
-// 编辑
+// Editar
 exports.update = async (req, res, next) => {
 	const { data } = req.locals
 	try {
-		// 查询结果
+		// Consultar resultado
 		const newData = await Model.findByPk(data.id)
-		// 返回
+		// Retornar
 		return res.json(newData)
 	} catch (error) {
 		return next(error)
 	}
 }
 
-// 删除
+// Eliminar
 exports.remove = async (req, res, next) => {
 	const { data } = req.locals
 	try {
-		// 先删除数据库记录
+		// Primero eliminar el registro de la base de datos
 		await Model.destroy({
 			where: { id: data.id },
 			individualHooks: true
@@ -68,11 +68,11 @@ exports.remove = async (req, res, next) => {
 	}
 }
 
-// 批量删除
+// Eliminar múltiples elementos
 exports.removeList = async (req, res, next) => {
 	const { ids = [] } = req.body
 	try {
-		// 删除数据库记录
+		// Eliminar registros de la base de datos
 		const rows = await Model.destroy({
 			where: { id: { [Op.in]: ids } },
 			individualHooks: true
@@ -85,10 +85,10 @@ exports.removeList = async (req, res, next) => {
 	}
 }
 
-// 同步上周
+// Sincronizar con la semana anterior
 exports.syncLastWeek = async (req, res, next) => {
 	let { nodeId, lastDate } = req.body
-	//  特别参数的定制查询
+	// Consulta personalizada para parámetros especiales
 	if (lastDate) {
 		lastDate = parseTimeQuyer(lastDate)
 	}
@@ -122,11 +122,11 @@ exports.syncLastWeek = async (req, res, next) => {
 	}
 }
 
-// 获取列表
+// Obtener lista
 exports.list = async (req, res, next) => {
 	try {
 		let { ...query } = req.query
-		//  特别参数的定制查询
+		// Consulta personalizada para parámetros especiales
 		if (query.date) {
 			query.date = parseTimeQuyer(query.date)
 		}

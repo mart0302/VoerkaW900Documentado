@@ -1,20 +1,20 @@
 const { TRANSACTION_RESULT, EVENT_CODE } = require('@voerka/messager')
 const { Op, QueryTypes } = require('sequelize')
 /**
- * 统计类接口
+ * Interfaz de clase estadística
  *
- * 方式: post
+ * Método: post
  *
- * 基本参数:
- *  - start  开始时间，时间戳
- *  - end 结束时间，时间戳
- *  - group 设备分组
- *  - dimensions: [] 维度，目前不开放
- *  - measure: 指标，目前不开放，指定 COUNT(id)
- *  - timeDimension: 时间维度，时间分组可选hourly(禁用)、daily、weekly（禁用）、monthly
+ * Parámetros básicos:
+ *  - start  tiempo de inicio, timestamp
+ *  - end tiempo final, timestamp
+ *  - group agrupación de dispositivos
+ *  - dimensions: [] dimensiones, actualmente no disponible
+ *  - measure: métrica, actualmente no disponible, especifica COUNT(id)
+ *  - timeDimension: dimensión temporal, agrupación temporal puede ser hourly(deshabilitado), daily, weekly(deshabilitado), monthly
  */
 
-/** 工具方法 */
+/** Métodos de utilidad */
 
 const TIME_DIMENSION = {
 	HOURLY: 'hourly',
@@ -25,7 +25,7 @@ const TIME_DIMENSION = {
 exports.TIME_DIMENSION = TIME_DIMENSION
 
 /**
- * 将sql语句组装成按时间区间分组
+ * Ensambla la consulta SQL para agrupar por intervalos de tiempo
  */
 function groupByTime({
 	dimension = TIME_DIMENSION.DAILY,
@@ -70,16 +70,17 @@ function groupByTime({
 }
 
 /**
- * 呼叫时长分析
- * 模型：呼叫（呼叫事务）
- * 指标：次数
- * 维度：处理时长，即按 处理时长 分组， group by duration
- * 维度处理：拆分单位(unit，毫秒)，即按处理时长 0-2分钟、2-4分钟...划分，所以duration要做处理，拆分单位作为参数
+ * Análisis de duración de llamadas
+ * Modelo: Llamada (transacción de llamada)
+ * Métrica: número de veces
+ * Dimensión: duración del procesamiento, es decir, agrupar por duración, group by duration
+ * Procesamiento de dimensión: unidad de división (unit, milisegundos), es decir, dividir por duración de procesamiento 0-2 minutos, 2-4 minutos...
+ * la duración debe procesarse, la unidad de división como parámetro
  *
- *
- *  如果是整个时间内呼叫处理时长分析，那就一个分组, duration,可以用条形图
- *  如果增加了时间分组，按天，按周，按月，条形图或柱状图就比较难看了，前端用柱状堆叠图会比较好
- *  目前接口支持，但是前端必须拿到数据之后再做处理才能用柱状堆叠
+ * Si es un análisis de duración de procesamiento de llamadas para todo el período, entonces es una agrupación, duration, se puede usar un gráfico de barras
+ * Si se agrega agrupación temporal, por día, por semana, por mes, el gráfico de barras o columnas sería difícil de ver,
+ * sería mejor usar un gráfico de barras apiladas en el frontend
+ * Actualmente la interfaz lo soporta, pero el frontend debe procesar los datos después de recibirlos para usar barras apiladas
  */
 exports.callDuration = async (req, res, next) => {
 	try {
@@ -104,7 +105,7 @@ exports.callDuration = async (req, res, next) => {
 		const { sql } = groupByTime({
 			dimension: timeDimension,
 			field: 'startTime',
-			// sqlite floor好像有问题，在>=0的情况下cast(x as int) = floor(x)
+			// sqlite floor parece tener problemas, en el caso de >=0 cast(x as int) = floor(x)
 			table: 'Transactions',
 			wheres,
 			selects: [`cast(duration / ${unit} as int) AS interval`, `count(id) AS \`count\``],
@@ -144,7 +145,7 @@ exports.callResult = async (req, res, next) => {
 		const { sql } = groupByTime({
 			dimension: timeDimension,
 			field: 'startTime',
-			// sqlite floor好像有问题，在>=0的情况下cast(x as int) = floor(x)
+			// sqlite floor parece tener problemas, en el caso de >=0 cast(x as int) = floor(x)
 			table: 'Transactions',
 			wheres,
 			selects: ['result', `count(id) AS \`count\``],
@@ -161,7 +162,7 @@ exports.callResult = async (req, res, next) => {
 }
 
 /**
- * 呼叫统计数据
+ * Datos estadísticos de llamadas
  * @returns { total, finished, completed, notServiced, ignored, rejected, timeout, precaution }
  */
 exports.callStatistics = async (req, res, next) => {
@@ -210,7 +211,7 @@ exports.callStatistics = async (req, res, next) => {
 }
 
 /**
- * 告警统计
+ * Estadísticas de alarmas
  * @returns { total, result }
  */
 exports.alarmStatistics = async (req, res, next) => {

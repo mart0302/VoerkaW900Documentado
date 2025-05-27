@@ -1,6 +1,6 @@
 const { Op } = require('sequelize')
 
-// 加载 - params id
+// Cargar - parámetro id
 exports.load = async (req, res, next, id) => {
 	try {
 		const department = await $db.Department.findByPk(id)
@@ -14,7 +14,7 @@ exports.load = async (req, res, next, id) => {
 	}
 }
 
-// 获取列表
+// Obtener lista
 exports.getList = async (req, res, next) => {
 	try {
 		const department = await $db.Department.findAll()
@@ -24,7 +24,7 @@ exports.getList = async (req, res, next) => {
 	}
 }
 
-// 获取节点
+// Obtener nodo
 exports.get = async (req, res, next) => {
 	try {
 		const { id } = req.locals.department
@@ -37,7 +37,7 @@ exports.get = async (req, res, next) => {
 	}
 }
 
-// 新增
+// Crear nuevo
 exports.create = async (req, res, next) => {
 	try {
 		const department = await $db.Department.createNode(req.body)
@@ -50,10 +50,10 @@ exports.create = async (req, res, next) => {
 	}
 }
 
-// 过滤
+// Filtrar
 exports.getQuery = async (req, res, next) => {
 	let { ...query } = req.query
-	//  特别参数的定制查询
+	// Consulta personalizada para parámetros especiales
 	const qry = {}
 	if ('open' in query) {
 		qry.open = { [Op.eq]: query.open }
@@ -68,37 +68,37 @@ exports.getQuery = async (req, res, next) => {
 	return res.json(departments)
 }
 
-// 编辑
+// Editar
 exports.update = async (req, res, next) => {
 	const { department } = req.locals
 	const { id } = department
 	let data = req.body
 	try {
-		// 更新数据库
+		// Actualizar base de datos
 		const result = await $db.Department.updateNode(data, { where: { id }, individualHooks: true })
-		// 返回
+		// Retornar
 		return res.json(result)
 	} catch (error) {
 		return next(error)
 	}
 }
 
-// 节点删除，更新设备的绑定状态
+// Eliminar nodo, actualizar el estado de vinculación de dispositivos
 $db.Department.addHook('afterDestroy', async (node, options) => {
 	const { leader, related, id } = node
-	// 先解绑
+	// Primero desvincular
 	if (related.length) {
 		related.map(async item => {
 			await $db.User.update({ nodeId: null }, { where: { sn: item.id, nodeId: id } })
 		})
 	}
-	// 如果节点上关联资源有非多绑
+	// Si el nodo tiene recursos no multi-vinculados
 	if (leader) {
 		$db.User.update({ nodeId: null }, { where: { id: leader } })
 	}
 })
 
-// 删除
+// Eliminar
 exports.remove = async (req, res, next) => {
 	const { department } = req.locals
 	const { id } = department

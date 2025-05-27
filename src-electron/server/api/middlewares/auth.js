@@ -1,22 +1,22 @@
 /**
- * TODO：根据用户菜单未后端API授权
+ * TODO: Autorización de API backend según el menú del usuario
  */
-// 用户角色权限中间件
+// Middleware de permisos de roles de usuario
 const passport = require('passport')
 const { ROLES } = require('../../config/constant')
 const { intersection } = require('lodash')
 
 const handleJWT = (req, res, next, roles, paths) => async (err, user, info) => {
 	let apiError = $APIError.Unauthorized()
-	// 字符串直接转成数组
+	// Convertir directamente la cadena en array
 	typeof roles === 'string' && (roles = [roles])
 	const menus = user.menus ? user.menus.split(',') : []
 	let isAuthorize = false
-	// 如果菜单在用户权限之内
+	// Si el menú está dentro de los permisos del usuario
 	if (intersection(menus, paths).length > 0) {
 		isAuthorize = true
 	}
-	// 如果角色不在roles里面则返回403
+	// Si el rol no está en roles, devolver 403
 	if (!isAuthorize && user && !roles.includes(user.role)) {
 		apiError = $APIError.Forbidden()
 		return next(apiError)

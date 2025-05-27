@@ -8,29 +8,29 @@ module.exports = (sequelize, { User }) => {
 	Department.init(
 		{
 			type: { type: DataTypes.STRING },
-			title: { type: DataTypes.STRING }, // 中文标题
-			description: { type: DataTypes.STRING }, // 部门描述
+			title: { type: DataTypes.STRING }, // Título en español
+			description: { type: DataTypes.STRING }, // Descripción del departamento
 			logo: { type: DataTypes.STRING },
 			open: {
 				type: DataTypes.BOOLEAN,
 				defaultValue: true
 			},
 			leader: {
-				// leader
+				// Líder
 				type: DataTypes.STRING,
 				references: {
 					model: User,
 					key: 'username'
 				},
-				onDelete: 'SET NULL' // 删除设备的时候会将本字段设置位null，就是自动解绑
+				onDelete: 'SET NULL' // Al eliminar el dispositivo, este campo se establecerá como null, es decir, se desvinculará automáticamente
 			},
 			orderNumber: {
 				type: DataTypes.INTEGER,
 				defaultValue: 0
-			}, // 显示顺序
+			}, // Orden de visualización
 			related: {
-				// 关联资源，为以后的扩展留空间， [{type: 'keyMap', id: 1}, { type: 'user', id: 1 }]
-				// 动态的类型与id，无法直接实现外键查询，非不得已不使用
+				// Recursos relacionados, espacio reservado para futuras extensiones, [{type: 'keyMap', id: 1}, { type: 'user', id: 1 }]
+				// Tipos e IDs dinámicos, no se puede implementar directamente la consulta de clave externa, no usar a menos que sea absolutamente necesario
 				type: DataTypes.JSON,
 				defaultValue: []
 			},

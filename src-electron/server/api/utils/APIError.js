@@ -18,15 +18,15 @@ class ExtendableError extends Error {
 }
 
 /**
- * Class representing an API error.
+ * Clase que representa un error de API.
  * @extends ExtendableError
  */
 class APIError extends ExtendableError {
 	/**
-	 * Creates an API error.
-	 * @param {string} message - Error message.
-	 * @param {number} status - HTTP status code of error.
-	 * @param {boolean} isPublic - Whether the message should be visible to user or not.
+	 * Crea un error de API.
+	 * @param {string} message - Mensaje de error.
+	 * @param {number} status - Código de estado HTTP del error.
+	 * @param {boolean} isPublic - Si el mensaje debe ser visible para el usuario o no.
 	 */
 	constructor({ message, errors, stack, status = httpStatus.INTERNAL_SERVER_ERROR, isPublic = false }) {
 		super({
@@ -39,7 +39,7 @@ class APIError extends ExtendableError {
 	}
 }
 
-// 401 用户没有访问权限，需要进行身份认证
+// 401 usuario no tiene permisos de acceso, necesita autenticación
 APIError.Unauthorized = function (message) {
 	return new APIError({
 		status: httpStatus.UNAUTHORIZED,
@@ -47,7 +47,7 @@ APIError.Unauthorized = function (message) {
 	})
 }
 
-// 403 权限不足
+// 403 permisos insuficientes
 APIError.Forbidden = function (message) {
 	return new APIError({
 		status: httpStatus.FORBIDDEN,
@@ -63,7 +63,7 @@ APIError.NotFound = function (message) {
 	})
 }
 
-// 409 资源冲突
+// 409 conflicto de recursos
 APIError.Conflict = function (message) {
 	return new APIError({
 		status: httpStatus.CONFLICT,
@@ -71,7 +71,7 @@ APIError.Conflict = function (message) {
 	})
 }
 
-// 400 bad request 错误请求，用户的锅
+// 400 bad request solicitud incorrecta, error del usuario
 APIError.BadRequest = function (message) {
 	return new APIError({
 		status: httpStatus.BAD_REQUEST,
@@ -79,7 +79,7 @@ APIError.BadRequest = function (message) {
 	})
 }
 
-// 将status也绑定上去
+// vincular también el status
 APIError.STATUS = httpStatus
 
 module.exports = APIError

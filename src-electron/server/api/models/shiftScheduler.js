@@ -1,4 +1,4 @@
-/* 表排班 */
+/* Programación de turnos */
 const { DataTypes } = require('sequelize')
 
 module.exports = sequelize => {
@@ -9,10 +9,10 @@ module.exports = sequelize => {
 			date: { type: DataTypes.NUMBER },
 			start: { type: DataTypes.NUMBER },
 			end: { type: DataTypes.NUMBER },
-			type: { type: DataTypes.STRING }, //  资源类型
-			users: { type: DataTypes.JSON }, // 排班人员
-			nodeId: { type: DataTypes.NUMBER }, // 绑定节点
-			// 以下数据仅做保留，其实没有用
+			type: { type: DataTypes.STRING }, // Tipo de recurso
+			users: { type: DataTypes.JSON }, // Personal programado
+			nodeId: { type: DataTypes.NUMBER }, // Nodo vinculado
+			// Los siguientes datos se mantienen solo como reserva, en realidad no se usan
 			image: { type: DataTypes.STRING },
 			createdBy: { type: DataTypes.JSON, defaultValue: {} }
 		},

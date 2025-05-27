@@ -1,14 +1,14 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 批量删除
+	// Eliminación por lotes
 	removeGroup: {
 		body: {
 			ids: Joi.array().items(Joi.string())
 		}
 	},
 
-	// 获取列表
+	// Obtener lista
 	listGroup: {
 		query: {
 			nodeId: Joi.number().min(1),
@@ -16,7 +16,7 @@ module.exports = {
 			end: Joi.string().required()
 		}
 	},
-	// 更新
+	// renovar
 	updateGroup: {
 		body: {
 			nodeId: Joi.number().min(1),

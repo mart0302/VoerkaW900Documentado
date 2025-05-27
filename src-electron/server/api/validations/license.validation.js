@@ -1,14 +1,14 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 创建设备证书文件
+	// Crear un archivo de certificado de dispositivo
 	createLicense: {
 		body: {
 			id: Joi.string().required(),
 			license: Joi.string().required()
 		}
 	},
-	// 获取列表
+	// Obtener lista
 	listLicense: {
 		query: {
 			limit: Joi.number().integer().min(1).max(100).default(20),

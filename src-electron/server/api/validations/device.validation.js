@@ -8,9 +8,9 @@ module.exports = {
 				Joi.object({
 					sn: Joi.string().min(12).max(12).lowercase().required(),
 					parent: Joi.string().empty('').default(''),
-					type: Joi.string().required(), // 设备类型
-					title: Joi.string().empty('').default(''), // 设备名称
-					version: Joi.string().empty('').default(''), // 固件版本
+					type: Joi.string().required(), // Tipo de dispositivo
+					title: Joi.string().empty('').default(''), // Nombre del dispositivo
+					version: Joi.string().empty('').default(''), // Versión de firmware
 					networks: Joi.array().items(
 						Joi.object({
 							// red

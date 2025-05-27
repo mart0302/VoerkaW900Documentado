@@ -1,14 +1,14 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 批量删除
+	// Eliminación por lotes
 	removePositions: {
 		body: {
 			ids: Joi.array().items(Joi.number())
 		}
 	},
 
-	// 获取列表
+	// Obtener lista
 	listPositions: {
 		query: {
 			limit: Joi.number().integer().min(1).max(100).default(20),

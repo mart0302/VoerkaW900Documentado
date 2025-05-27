@@ -42,8 +42,8 @@ module.exports = {
 		}
 	},
 
-	// 获取列表
-	// 暂时不需要实现，前端过滤实现
+	// Obtener lista
+	// No es necesario implementar por el momento la implementación del filtrado front-end
 	listNavigations: {
 		query: {
 			limit: Joi.number().integer().min(1).max(100).default(20),

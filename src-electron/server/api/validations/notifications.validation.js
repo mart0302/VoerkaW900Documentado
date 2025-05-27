@@ -1,26 +1,26 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 创建
+	// crear
 	createNotice: {
 		body: {
 			type: Joi.string(),
 			title: Joi.string(),
 			content: Joi.string(),
 			status: Joi.string(),
-			star: Joi.boolean().default(false), // 是否标星
+			star: Joi.boolean().default(false), // Si marcar estrellas
 			receivers: Joi.array(),
 			sendTime: Joi.string().default(null)
 		}
 	},
-	// 批量删除
+	// Eliminación por lotes
 	removeNotices: {
 		body: {
 			ids: Joi.array().items(Joi.number())
 		}
 	},
 
-	// 获取列表
+	// Obtener lista
 	listNotices: {
 		query: {
 			limit: Joi.number().integer().min(1).max(100).default(20),
@@ -28,19 +28,19 @@ module.exports = {
 			to: Joi.object({
 				type: Joi.string(),
 				id: Joi.alternatives().try(Joi.number(), Joi.string()).required()
-			}), // 消息
+			}), // información
 			from: Joi.object({
 				type: Joi.string(),
 				id: Joi.alternatives().try(Joi.number(), Joi.string()).required()
-			}), // 消息
-			status: Joi.string(), // 告警结果
-			star: Joi.boolean(), // 按事件编码查找
-			title: Joi.string(), // 事件/告警
-			sendTime: Joi.string() // 分组查找
+			}), // información
+			status: Joi.string(), // Resultados de la alarma
+			star: Joi.boolean(), // Buscar por código de evento
+			title: Joi.string(), // Eventos/Alarmas
+			sendTime: Joi.string() // Búsqueda de grupo
 		}
 	},
 
-	// 处理通知
+	// Manejo de notificaciones
 	handleNotice: {
 		body: {
 			type: Joi.string(),
@@ -49,15 +49,15 @@ module.exports = {
 			title: Joi.string(),
 			content: Joi.string(),
 			status: Joi.string(),
-			star: Joi.boolean().default(false) // 是否标星
+			star: Joi.boolean().default(false) // Si marcar estrellas
 		}
 	},
-	// 发布通知到第三方服务平台
+	// Publicar notificaciones en plataformas de servicios de terceros
 	publishNotice: {
 		body: {
-			id: Joi.array().required(), // 节点id
-			title: Joi.string().empty('').default(''), // 通知标题, 可以为空，该字段不发送到手表
-			content: Joi.string().required(), // 发送给手表消息内容
+			id: Joi.array().required(), // Identificación del nodo
+			title: Joi.string().empty('').default(''), // Título de la notificación, puede estar vacío, este campo no se envía al reloj.
+			content: Joi.string().required(), // Contenido del mensaje enviado al reloj
 			type: Joi.string().default('node')
 		}
 	}

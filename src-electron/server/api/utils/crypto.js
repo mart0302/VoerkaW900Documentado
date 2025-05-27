@@ -1,11 +1,11 @@
-const { createHash } = require('crypto')
-const fs = require('fs')
+const { createHash } = require('crypto') // Módulo de Node.js para crear hashes criptográficos
+const fs = require('fs') // Módulo de Node.js para trabajar con el sistema de archivos
 
 const encryptFile = async (algorithm, path) => {
 	const hash = createHash(algorithm)
-	// 一口气读取
+	// Lectura de una sola vez
 	// hash.update(fs.readFileSync(path))
-	// 分块读取
+	// Lectura por bloques
 	return new Promise((r, j) => {
 		const read = fs.createReadStream(path)
 		read.on('data', chunk => {
@@ -17,7 +17,7 @@ const encryptFile = async (algorithm, path) => {
 		read.on('error', error => {
 			j(error)
 		})
-		//让文件流开始'流'动起来
+		// Hace que el flujo de archivos comience a "fluir"
 		read.resume()
 	})
 }

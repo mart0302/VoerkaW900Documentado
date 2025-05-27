@@ -71,7 +71,7 @@ module.exports = function useTreeModel(TreeModel) {
 		return rebuildTree(node, children)
 	}
 
-	// 创建节点-create
+	// Crear nodo
 	TreeModel.createNode = async function (data = {}) {
 		const _t = TreeModel._tree_options
 		const pid = data[_t.pid]
@@ -81,10 +81,10 @@ module.exports = function useTreeModel(TreeModel) {
 			if (!pNode) {
 				throw new Error('parent_node_not_found')
 			}
-			// 查询子节点，并组装返回
+			// Consultar nodos hijos y ensamblar retorno
 			const children = await TreeModel.findAll({ where: { [_t.path]: { [Op.like]: `${curPath(pNode)}%` } } })
 
-			// 修改排序号,如果子节点中大于等于该排序号的都往后排
+			// Modificar número de orden, si hay hijos con número de orden mayor o igual, se mueven hacia atrás
 			const { orderNumber } = data
 			const nodes = rebuildTree(pNode, children)
 			if (nodes?.children?.length) {
@@ -102,7 +102,7 @@ module.exports = function useTreeModel(TreeModel) {
 				[_t.path]: curPath(pNode)
 			})
 		} else {
-			// 根节点
+			// Nodo raíz
 			node = await TreeModel.create({
 				...data,
 				[_t.path]: ''
@@ -111,15 +111,15 @@ module.exports = function useTreeModel(TreeModel) {
 		return node
 	}
 
-	// 删除节点-destroy
+	// Eliminar nodo
 	TreeModel.destroyNode = async function (options = {}) {
 		const _t = TreeModel._tree_options
-		// 未找到直接原样返回
+		// Si no se encuentra, devolver tal cual
 		const node = await TreeModel.findOne(options)
 		if (!node) {
 			return node
 		}
-		// 更新同级的orderNumber
+		// Actualizar orderNumber de los hermanos
 		const sameRows = await TreeModel.findAll({
 			where: { [_t.path]: node[_t.path], orderNumber: { [Op.gte]: node.orderNumber } }
 		})
@@ -128,9 +128,9 @@ module.exports = function useTreeModel(TreeModel) {
 				TreeModel.update({ orderNumber: row.orderNumber - 1 }, { where: { [_t.id]: row[_t.id] } })
 			})
 		}
-		// 删除节点
+		// Eliminar nodo
 		const rows = await TreeModel.destroy(options)
-		// 删除其所有子节点
+		// Eliminar todos sus hijos
 		const childrenRows = await TreeModel.destroy({
 			...options,
 			where: { [_t.path]: { [Op.like]: `${curPath(node)}%` } }
@@ -142,53 +142,53 @@ module.exports = function useTreeModel(TreeModel) {
 		}
 	}
 
-	// 更新节点-update
-	// moveNode
+	// Actualizar nodo
+	// Mover nodo
 	TreeModel.updateNode = async function (data = {}, options = {}) {
 		const _t = TreeModel._tree_options
 		const nodes = []
-		data = omit(data, [_t.id, _t.path]) // id、path不允许修改
-		// 未找到直接原样返回
+		data = omit(data, [_t.id, _t.path]) // id y path no se pueden modificar
+		// Si no se encuentra, devolver tal cual
 		let node = await TreeModel.findOne(options)
 		if (!node) {
 			return node
 		}
-		// 有可能要改动位置
+		// Puede que se deba cambiar de posición
 		if (_t.pid in data && node[_t.pid] !== data[_t.pid]) {
-			// 根节点不允许移动
+			// No se permite mover el nodo raíz
 			if (!node[_t.path]) {
 				throw new Error('root_can_not_move')
 			}
 
-			// 不允许移动到根下成为根节点
+			// No se permite mover a la raíz para ser nodo raíz
 			if (!data[_t.pid]) {
 				throw new Error('node_can_not_be_root')
 			}
 
-			// 检查要移动到的位置存在不存在
+			// Verificar si el destino existe
 			const pNode = await TreeModel.findOne({ where: { [_t.id]: data[_t.pid] } })
 			if (!pNode) {
 				throw new Error('move_target_no_found')
 			}
-			// 获取整棵子树
+			// Obtener todo el subárbol
 			const tree = await TreeModel.findNode(options)
 
-			// 重新计算整棵子树的group
+			// Recalcular el grupo del subárbol
 			reCalcTree(tree, pNode, nodes)
 
-			// 删除整棵子树
+			// Eliminar todo el subárbol
 			await TreeModel.destroyNode(options)
 
-			// 重新创建
+			// Volver a crear
 			await TreeModel.bulkCreate(nodes)
 		}
-		// 更新排序号
+		// Actualizar número de orden
 		if (_t.orderNumber in data && data[_t.pid]) {
 			const pNode = await TreeModel.findByPk(data[_t.pid])
-			// 查询子节点，并组装返回
+			// Consultar nodos hijos y ensamblar retorno
 			const children = await TreeModel.findAll({ where: { [_t.path]: { [Op.like]: `${curPath(pNode)}%` } } })
 
-			// 修改排序号,如果子节点中大于等于该排序号的都往后排
+			// Modificar número de orden, si hay hijos con número de orden mayor o igual, se mueven hacia atrás
 			const { orderNumber, id } = data
 			const pNodes = rebuildTree(pNode, children)
 			if (pNodes?.children?.length) {
@@ -203,13 +203,13 @@ module.exports = function useTreeModel(TreeModel) {
 			}
 		}
 
-		// 更新数据
+		// Actualizar datos
 		const rows = await TreeModel.update(data, { ...options, where: { [_t.id]: node[_t.id] } })
 		return { rows }
 	}
 
-	/** 工具方法 */
-	// 拼接当前的路径
+	/** Métodos utilitarios */
+	// Concatenar la ruta actual
 	function curPath(node = {}) {
 		const _t = TreeModel._tree_options
 		const path = node[_t.path]
@@ -221,16 +221,16 @@ module.exports = function useTreeModel(TreeModel) {
 		return path ? `${path}/${id}` : id + ''
 	}
 
-	// 构造树
+	// Construir árbol
 	// toJSON
 	function rebuildTree(node, children = []) {
 		node = node.toJSON()
 		const _t = TreeModel._tree_options
-		// 归纳映射
+		// Mapear por id
 		// id - item
 		const idMap = {}
 		idMap[String(node[_t.id])] = node
-		// path - children map
+		// Mapa de hijos por path
 		const pcMap = {}
 		children.forEach(child => {
 			child = child.toJSON()
@@ -243,7 +243,7 @@ module.exports = function useTreeModel(TreeModel) {
 			const pc = pcMap[path]
 			pc.push(child)
 		})
-		// 按层级由浅及深遍历映射重新组装children
+		// Recorrer por niveles de menor a mayor profundidad y reensamblar los hijos
 		// pathList = [ "1", "1/2", "1/3", "1/3/6" ]
 		const pathList = Object.keys(pcMap).sort((a, b) => a.split('/').length - b.split('/').length)
 		pathList.forEach(path => {
@@ -256,7 +256,7 @@ module.exports = function useTreeModel(TreeModel) {
 		return node
 	}
 
-	// 重新计算子树的path
+	// Recalcular el path del subárbol
 	function reCalcTree(tree, pNode, list = []) {
 		const _t = TreeModel._tree_options
 

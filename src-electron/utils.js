@@ -17,7 +17,7 @@ const {
 	getHeader
 } = require('./server/config/protocols')
 const iconv = require('iconv-lite')
-// 拷贝并解压
+// Copiar y descomprimir
 module.exports.copyAndUnzip = function (sourceFile, destFile, { onProgress, onError, onSuccess }) {
 	fs.stat(sourceFile, function (err, stat) {
 		const filesize = stat.size
@@ -30,9 +30,9 @@ module.exports.copyAndUnzip = function (sourceFile, destFile, { onProgress, onEr
 			const porcentage = ((bytesCopied / filesize) * 100).toFixed(2)
 			if (porcentage >= 100 && !unziped) {
 				unziped = true
-				// 解压缩
+				// Descomprimir
 				await extract(destFile, { dir: path.dirname(destFile) })
-				// 回调
+				// Callback (función de retorno)
 				onProgress && onProgress(Number(porcentage))
 				onSuccess && onSuccess()
 			} else {
@@ -49,12 +49,12 @@ module.exports.copyAndUnzip = function (sourceFile, destFile, { onProgress, onEr
 	})
 }
 
-// 缓存
+// Caché
 module.exports.useCache = function (fetch, { max = 200, life = 3 * 60 * 1000 } = {}) {
-	// 缓存池
+	//  Pool de caché (almacenamiento temporal de datos en memoria)
 	const caches = {}
 
-	// 清理缓存
+	// Limpiar el caché
 	function cleanCache() {
 		const hits = Object.entries(caches)
 		const nowTime = Date.now()
@@ -68,7 +68,7 @@ module.exports.useCache = function (fetch, { max = 200, life = 3 * 60 * 1000 } =
 		}
 	}
 
-	// 从缓存中获取
+	// Obtener desde el caché
 	async function get(id) {
 		const hit = caches[id]
 		if (!hit || hit.expired < Date.now()) {
@@ -84,27 +84,27 @@ module.exports.useCache = function (fetch, { max = 200, life = 3 * 60 * 1000 } =
 		}
 	}
 
-	// 查询设备
+	// Consultar dispositivo
 	return async id => {
-		// 获取
+		// Obtener (los datos)
 		const value = await get(id)
 
-		// 维护缓存
+		// Mantener el caché (limpiar si es necesario)
 		cleanCache()
 
 		return value
 	}
 }
 
-// 获取序列号
+// Obtener número de serie
 module.exports.getSN = async function () {
-	// 获取第一个（默认）网卡的mac作为序列号
-	// 如果用户添加了网卡，只要不是拆掉原本的网卡就可以继续用
+	// Usar la dirección MAC de la primera (predeterminada) tarjeta de red como número de serie
+	// Si el usuario agrega otra tarjeta de red, mientras no quite la original, podrá seguir usando el mismo número de serie
 	const mac = await macaddress.one()
 	return mac.replace(/\:/g, '')
 }
 
-// hex求和
+// Calcular la suma de los valores (se asume que son bytes u otros números)
 function getSum(data) {
 	let sum = 0
 	Object.keys(data).forEach(i => {
@@ -112,7 +112,8 @@ function getSum(data) {
 	})
 	return sum
 }
-// 编码
+
+// Codificar
 module.exports.encodeMessage = function (data) {
 	let { netId, sn, cmd, lan = '' } = data
 	sn = [parseInt(sn.slice(0, 3)), parseInt(sn.slice(3, 6)), parseInt(sn.slice(6, 9)), parseInt(sn.slice(9, 12))]
@@ -125,18 +126,18 @@ module.exports.encodeMessage = function (data) {
 			$log.info('SEND_MESSAGE+++++++++++++', msgId, unicastAddr, messages, lan.value.lan)
 			payload = WatchSendMessageStruct.encode({
 				header: 122, // 7A
-				msgId, // 消息id
-				addr: unicastAddr.split('.').map(i => parseInt(i)), // 手表的组地址(单播)[42, 254, 187, 61],
-				cmd: CMD[cmd], // 指令
+				msgId, // ID del mensaje
+				addr: unicastAddr.split('.').map(i => parseInt(i)), // Dirección unicast del reloj, por ejemplo [42, 254, 187, 61]
+				cmd: CMD[cmd], // Comando
 				message: lan.value.lan == 'zh' ? iconv.encode(messages, 'gbk') : iconv.encode(messages, 'Windows-1250') // 解决波兰文乱码问题
 			})
 			break
 		case 'CLEAR_MESSAGE':
 			payload = WatchClearMessageStruct.encode({
 				header: 122, // 7A
-				msgId: data.msgId, // 消息id
-				addr: data.unicastAddr.split('.').map(i => parseInt(i)), // 手表的组地址(单播)
-				cmd: CMD[cmd], // 指令
+				msgId: data.msgId, // ID del mensaje
+				addr: data.unicastAddr.split('.').map(i => parseInt(i)), // Dirección unicast del reloj
+				cmd: CMD[cmd],  // Comando
 				message: [1, 0]
 			})
 			$log.info('CLEAR_MESSAGE++++++++++++++++++')
@@ -267,15 +268,15 @@ module.exports.encodeMessage = function (data) {
 	} else {
 		message = MessagePackagesStruct.encode({
 			payload,
-			checkSum: parseInt(getSum(payload)) & 0xff // 取低位
+			checkSum: parseInt(getSum(payload)) & 0xff // Tomar solo los últimos 8 bits (baja)
 		})
 	}
 	$log.info('encode+++++++++++++', message.toString('hex').slice(2).toUpperCase())
-	// payload头部有一位payload的长度，需去掉
+		// El encabezado del payload incluye un byte de longitud, se debe eliminar
 	return message.toString('hex').slice(2).toUpperCase()
 }
 
-// 解码
+// Decodificar
 module.exports.decodeMessage = function (data) {
 	let buffer = toBuffer(data)
 	$log.info('decodeMessage  data is ======', buffer)
@@ -283,36 +284,39 @@ module.exports.decodeMessage = function (data) {
 	let messages = LauncherFreqIdStruct.decode(payload)
 	messages = LauncherDataStruct.decode(messages.data)
 	let { frequency, netId } = messages
-	// buffer转十六进制
+	// Convertir el buffer a hexadecimal
 	frequency = buf_hex(frequency)
-	//   频率转码计算公式：
-	// DEC-HEX：DEC 频率值*10^9/61035 所得结果的整数位转换成 HEX
-	// 比如：434MHz，434*1000000000/61035=7110674，转成 HEX 是 6C0812；
-	// HEX-DEC：HEX 码转成 DEC 码所得结果*61035/10^9
-	// 比如：6D0000 转成十进制是 7143424， 7143424*61035/10^9≈433.00MHz；
+	// Fórmulas para la conversión de frecuencia:
+	// DEC a HEX: frecuencia en DEC * 10^9 / 61035; el resultado entero se convierte a HEX
+	// Ejemplo: 434MHz, 434*1000000000/61035 = 7110674, en HEX es 6C0812;
+	// HEX a DEC: convertir el código HEX a DEC, luego multiplicar por 61035 / 10^9
+	// Ejemplo: 6D0000 → decimal = 7143424; 7143424*61035 / 10^9 ≈ 433.00 MHz;
 	frequency = Math.round((parseInt(frequency, 16) * 61035) / 1000000000)
 	$log.info('decodeMessage  frequency is ======', frequency)
 	return { frequency, netId }
 }
 
 function toBuffer(data) {
-	let hex_array = [data.length - 3] // 22是包头长度
+	let hex_array = [data.length - 3] 	// Crear un array hexadecimal inicializado con la longitud del dato menos 3 (22 es la longitud del encabezado del paquete)
 	for (i = 0; i < data.length; i++) {
 		if ((i + 1) % 2 == 0) {
 			hex_array.push(parseInt(data[i - 1] + data[i], 16))
 		}
 	}
+	// Crear un Uint8Array a partir del array de valores hexadecimales
 	let uarray = new Uint8Array(hex_array)
+	// Convertir el Uint8Array a un Buffer de Node.js y devolverlo
 	return Buffer.from(uarray)
 }
 
-// buffer转十六进制字符串
+// Convierte un buffer a una cadena hexadecimal
 function buf_hex(buf) {
 	let hexStr = ''
 	buf.forEach(b => {
 		let hex = b.toString(16)
 		let zero = '00'
 		let tmp = 2 - hex.length
+		// Añade ceros a la izquierda si el valor hexadecimal tiene solo 1 dígito
 		hexStr += zero.substr(0, tmp) + hex
 	})
 	return hexStr

@@ -8,7 +8,7 @@ const { listUsers, removeUsers } = require('../../validations/user.validation')
 const router = express.Router()
 
 /**
- * Load user when API with userId route parameter is hit
+ * Cargar usuario cuando se accede a una ruta API con parámetro userId
  */
 router.param('id', controller.load)
 

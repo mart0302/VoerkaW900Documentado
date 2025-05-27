@@ -13,16 +13,16 @@ const {
 
 const router = express.Router()
 
-// 处理事务
+// procesar transacción
 router.route('/send').post(authorize(ADMIN, [ROUTES.Notice]), validate(handleNotice), controller.handle)
 
-// 暴露给第三方服务
+// exponer a servicios de terceros
 router.route('/publish').post(authorize(ADMIN), validate(publishNotice), controller.publish)
 router.route('/test').post(authorize(ADMIN), controller.test)
 
 router.param('id', controller.load)
 
-// 获取\更新\删除
+// obtener/actualizar/eliminar
 router
 	.route('/:id')
 	.get(authorize(ADMIN, [ROUTES.Notice]), controller.get)
@@ -31,7 +31,7 @@ router
 
 router
 	.route('/')
-	.post(authorize(ADMIN, [ROUTES.Notice]), validate(createNotice), controller.create) // 创建通知
-	.get(authorize(ADMIN, [ROUTES.Notice]), validate(listNotices), controller.list) // 获取通知列表
+	.post(authorize(ADMIN, [ROUTES.Notice]), validate(createNotice), controller.create) // crear notificación
+	.get(authorize(ADMIN, [ROUTES.Notice]), validate(listNotices), controller.list) // obtener lista de notificaciones
 	.delete(authorize(ADMIN, [ROUTES.Notice]), validate(removeNotices), controller.removeList)
 module.exports = router

@@ -10,21 +10,21 @@ const router = express.Router()
 
 router.param('id', controller.load)
 
-// 获取\更新\删除
+// obtener/actualizar/eliminar
 router
 	.route('/:id')
 	.get(controller.get)
 	.patch(controller.update)
 	.delete(authorize(ADMIN, [ROUTES.CallEvent, ROUTES.Record]), controller.remove)
 
-// 处理事务
-router.route('/:id/handle').post(validate(handleTransactions), controller.handle)
-
-// 获取列表\批量删除\创建
+// obtener lista/eliminar en lote/crear
 router
 	.route('/')
 	.post(controller.create)
 	.get(validate(listTransactions), controller.list)
 	.delete(authorize(ADMIN, [ROUTES.CallEvent, ROUTES.Record]), validate(removeTransactions), controller.removeList)
+
+// procesar transacción
+router.route('/:id/handle').post(validate(handleTransactions), controller.handle)
 
 module.exports = router

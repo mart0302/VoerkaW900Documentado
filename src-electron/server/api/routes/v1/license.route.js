@@ -1,5 +1,5 @@
 /**
- * 设备授权，暂时弃用
+ * Autorización de dispositivos, temporalmente en desuso
  */
 const express = require('express')
 const { validate } = require('../../middlewares')
@@ -16,7 +16,7 @@ router.route('/:id').get(authorize(ADMIN), controller.get).delete(authorize(ADMI
 
 router
 	.route('/')
-	.post(authorize(ADMIN), validate(createLicense), controller.create) // 创建证书
-	.get(authorize(ADMIN), validate(listLicense), controller.list) // 获取设备证书列表
+	.post(authorize(ADMIN), validate(createLicense), controller.create) // crear certificado
+	.get(authorize(ADMIN), validate(listLicense), controller.list) // obtener lista de certificados de dispositivos
 
 module.exports = router

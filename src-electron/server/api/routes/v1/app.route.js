@@ -8,10 +8,10 @@ const { saveLicense } = require('../../validations/app.validation')
 
 const router = express.Router()
 
-// 获取应用是否授权
+// verificar si la aplicación está autorizada
 router.route('/isValid').get(controller.isValid)
 
-// 保存证书
+// guardar certificado
 router.route('/saveLicense').post(authorize(ADMIN, [ROUTES.License]), validate(saveLicense), controller.saveLicense)
 
 module.exports = router

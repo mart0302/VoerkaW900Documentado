@@ -14,12 +14,12 @@ exports.mergeDeepRight = function (object, other) {
 	return mergeWith(cloneDeep(object), other, customizer)
 }
 
-// 缓存
+// caché
 exports.useCache = function useCache(fetch, { max = 200, life = 3 * 60 * 1000, onUpdate = () => {} } = {}) {
-	// 缓存池
+	// grupo de caché
 	const caches = {}
 
-	// 清理缓存
+	// limpiar caché
 	function cleanCache() {
 		const hits = Object.entries(caches)
 		const nowTime = Date.now()
@@ -33,7 +33,7 @@ exports.useCache = function useCache(fetch, { max = 200, life = 3 * 60 * 1000, o
 		}
 	}
 
-	// 从缓存中获取
+	// obtener del caché
 	async function get(id) {
 		const hit = caches[id]
 		if (!hit || hit.expired < Date.now()) {
@@ -49,26 +49,26 @@ exports.useCache = function useCache(fetch, { max = 200, life = 3 * 60 * 1000, o
 		}
 	}
 
-	// 设置缓存
+	// establecer caché
 	async function set(id, value = null) {
 		if (value) {
-			// 时间重新计算
+			// recalcular tiempo
 			caches[id] = { expired: Date.now() + life, value }
 		} else {
 			delete caches[id]
 		}
 	}
 
-	// 更新机制
-	// 命名有问题，后面优化
+	// mecanismo de actualización
+	// hay un problema con el nombre, se optimizará después
 	onUpdate(set)
 
-	// 查询
+	// consulta
 	return async id => {
-		// 获取
+		// obtener
 		const value = await get(id)
 
-		// 维护缓存
+		// mantener caché
 		cleanCache()
 
 		return value

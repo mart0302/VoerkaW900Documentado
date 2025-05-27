@@ -8,25 +8,25 @@ module.exports = (sequelize, { Device }) => {
 
 	Navigation.init(
 		{
-			title: { type: DataTypes.STRING }, // 中文标题
+			title: { type: DataTypes.STRING }, // Título en español
 			device: {
-				// device并不需要外键查询，所以直接定义外键，而不是用“关联”
+				// device no necesita consulta de clave externa, así que se define directamente la clave externa en lugar de usar "relación"
 				type: DataTypes.STRING,
 				references: {
 					model: Device,
 					key: 'sn'
 				},
-				onDelete: 'SET NULL' // 删除设备的时候会将本字段设置位null，就是自动解绑
+				onDelete: 'SET NULL' // Al eliminar el dispositivo, este campo se establecerá como null, es decir, se desvinculará automáticamente
 			},
 			related: {
-				// 关联资源，为以后的扩展留空间， [{type: 'keyMap', id: 1}, { type: 'user', id: 1 }]
-				// 动态的类型与id，无法直接实现外键查询，非不得已不使用
+				// Recursos relacionados, espacio reservado para futuras extensiones, [{type: 'keyMap', id: 1}, { type: 'user', id: 1 }]
+				// Tipos e IDs dinámicos, no se puede implementar directamente la consulta de clave externa, no usar a menos que sea absolutamente necesario
 				type: DataTypes.JSON,
 				defaultValue: []
 			},
-			subscription: { type: DataTypes.BOOLEAN, defaultValue: false }, // 是否订阅美一云
-			intercom: { type: DataTypes.STRING, defaultValue: null }, // 是否开启对讲机功能，如果开启，该字段为网关sn， 如果没开启则为null
-			pushType: { type: DataTypes.STRING, defaultValue: INTERCOM_PUSH_TYPE.ALL } // 对讲语音推送类型；0：全部，1： 呼叫消息， 2：通知消息
+			subscription: { type: DataTypes.BOOLEAN, defaultValue: false }, // Si está suscrito a MeiYiYun
+			intercom: { type: DataTypes.STRING, defaultValue: null }, // Si la función de intercomunicador está habilitada, este campo será el sn de la puerta de enlace, si no está habilitada será null
+			pushType: { type: DataTypes.STRING, defaultValue: INTERCOM_PUSH_TYPE.ALL } // Tipo de envío de voz del intercomunicador; 0: todos, 1: mensajes de llamada, 2: mensajes de notificación
 		},
 		{
 			sequelize,

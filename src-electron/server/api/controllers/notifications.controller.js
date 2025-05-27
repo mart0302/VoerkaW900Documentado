@@ -10,11 +10,11 @@ const { destination } = ttsConfig
 const ttsPath = appPath.resolve.data(destination)
 
 const Model = $db.Notification
-// 发送时间
+// Tiempo de envío
 let gaptime = {}
 let id = 0
 async function addMessage({ message, domain, msgId, devices = [], unicastAddr } = {}) {
-	// 执行动作
+	// Ejecutar acción
 	$log.info('【notification】 lorawatch addMessage+++++++++++++', message, domain, msgId, devices)
 	let result = true
 	let idFailed = []
@@ -24,7 +24,7 @@ async function addMessage({ message, domain, msgId, devices = [], unicastAddr } 
 	for (let i = 0; i < devices.length; i++) {
 		let device = devices[i]
 		const { sn } = device
-		// 间隔时间
+		// Intervalo de tiempo
 		let timestamp = gaptime[sn] ? new Date().getTime() - gaptime[sn] : 0
 		if (gaptime[sn] && timestamp < 4 * 1000) {
 			await $messager._takeARest(4 * 1000)
@@ -69,20 +69,20 @@ async function addMessage({ message, domain, msgId, devices = [], unicastAddr } 
 	}
 }
 
-// 查找通知网关
+// Buscar puertas de enlace de notificación
 async function getGateways(resource) {
 	let gateways = []
 	let related = []
-	// 从主设备上查找是否存在该设备
+	// Buscar si existe el dispositivo en el dispositivo principal
 	const sn = resource?.id || resource
 	let lastNode = await $db.Navigation.findAll({ where: { device: sn } })
 	if (lastNode.length) {
-		// 查找该节点上是否有网关
+		// Buscar si hay una puerta de enlace en este nodo
 		lastNode.map(n => {
 			related = related.concat(n.related)
 		})
 	}
-	// 从关联资源上查找
+	// Buscar en recursos relacionados
 	lastNode = await $db.sequelize.query(
 		`SELECT Navigations.id, Navigations.device, related  FROM Navigations, json_each(Navigations.related) WHERE json_valid(Navigations.related) AND json_extract(json_each.value, '$.id') = '${sn}'`,
 		{
@@ -90,16 +90,16 @@ async function getGateways(resource) {
 		}
 	)
 	if (lastNode.length) {
-		// 查找该节点上是否有网关
+		// Buscar si hay una puerta de enlace en este nodo
 		lastNode.map(n => {
 			related = related.concat(JSON.parse(n.related))
 			if (n.device) {
-				// 查找该主设备是否为网关
+				// Verificar si este dispositivo principal es una puerta de enlace
 				related.push(n.device)
 			}
 		})
 	}
-	// 查找网关
+	// Buscar puertas de enlace
 	for (let i = 0, len = related.length; i < len; i++) {
 		let device = related[i]
 		const pid = device.id || device
@@ -112,7 +112,8 @@ async function getGateways(resource) {
 	$log.info('【notification】getGateways gateways.length：', gateways.length)
 	return gateways
 }
-// 加载
+
+// Cargar
 exports.load = async (req, res, next, id) => {
 	try {
 		const data = await Model.findByPk(id)
@@ -126,7 +127,7 @@ exports.load = async (req, res, next, id) => {
 	}
 }
 
-// 获取
+// Obtener
 exports.get = async (req, res) => {
 	try {
 		const { data } = req.locals
@@ -137,7 +138,7 @@ exports.get = async (req, res) => {
 	}
 }
 
-// 新增通知记录
+// Crear nuevo registro de notificación
 exports.create = async (req, res, next) => {
 	try {
 		let data
@@ -145,7 +146,7 @@ exports.create = async (req, res, next) => {
 			data = await Model.create(req.body)
 		} catch (error) {
 			// SQLITE_CONSTRAINT: FOREIGN KEY constraint failed
-			// 404 外键未找到，即设备不存在
+			// Error 404: clave foránea no encontrada, es decir, el dispositivo no existe
 			throw $APIError.NotFound('error.device_not_found')
 		}
 		res.status(httpStatus.CREATED)
@@ -155,27 +156,27 @@ exports.create = async (req, res, next) => {
 	}
 }
 
-// 更新通知记录
+// Actualizar registro de notificación
 exports.update = async (req, res, next) => {
 	const { data } = req.locals
 	const updateData = mergeDeepRight(data, req.body)
 	try {
-		// 更新数据库
+		// Actualizar base de datos
 		await Model.update(updateData, { where: { id: data.id }, individualHooks: true })
-		// 查询结果
+		// Consultar resultado
 		const newData = await Model.findByPk(data.id)
-		// 返回
+		// Retornar
 		return res.json(newData)
 	} catch (error) {
 		return next(error)
 	}
 }
 
-// 删除
+// Eliminar
 exports.remove = async (req, res, next) => {
 	const { data } = req.locals
 	try {
-		// 先删除数据库记录
+		// Primero eliminar el registro de la base de datos
 		await Model.destroy({
 			where: { id: data.id },
 			individualHooks: true
@@ -186,7 +187,7 @@ exports.remove = async (req, res, next) => {
 	}
 }
 
-// 获取列表
+// Obtener lista
 exports.list = async (req, res, next) => {
 	try {
 		let { limit, offset, ...query } = req.query
@@ -196,7 +197,7 @@ exports.list = async (req, res, next) => {
 		if (query.sendTime) {
 			query.sendTime = parseTimeQuyer(query.sendTime)
 		}
-		//  特别参数的定制查询
+		// Consulta personalizada para parámetros especiales
 		const qry = {}
 		query.title && (qry.title = { [Op.eq]: query.title })
 		query.from && (qry.from = { id: { [Op.eq]: query.from.id } })
@@ -223,11 +224,11 @@ exports.list = async (req, res, next) => {
 	}
 }
 
-// 批量删除列表
+// Eliminar múltiples elementos de la lista
 exports.removeList = async (req, res, next) => {
 	const { ids = [] } = req.body
 	try {
-		// 删除数据库记录
+		// Eliminar registros de la base de datos
 		const rows = await Model.destroy({
 			where: { id: { [Op.in]: ids } }
 		})
@@ -239,18 +240,18 @@ exports.removeList = async (req, res, next) => {
 	}
 }
 
-// 保存音频包
+// Guardar paquete de audio
 async function addWavFile({ path, message, msgId, device = {} } = {}) {
-	// 执行动作
+	// Ejecutar acción
 	$tts._saveWav(message, msgId, ttsPath, async code => {
-		// 合成语音包'C:\\Users\\Admin\\AppData\\Roaming\\@voerka\\w900\\Data\\temps\\6751595118430.wav'
+		// Sintetizar paquete de voz
 		if (code == 0) {
 			const id = msgId
 			const fileName = `${id}.wav`
 			const url = `/${destination}/${fileName}`
 			let ttsAudio = await $db.TtsAudio.findByPk(id)
 			if (!ttsAudio) {
-				// 创建记录
+				// Crear registro
 				const maxOrderItem = await $db.TtsAudio.findAll({
 					where: { gatewaySn: device.sn },
 					order: [['orderId', 'DESC']]
@@ -270,16 +271,16 @@ async function addWavFile({ path, message, msgId, device = {} } = {}) {
 					status: false
 				})
 			} else {
-				// 更新记录
+				// Actualizar registro
 				$db.TtsAudio.update({ status: false, url: url }, { where: { id }, individualHooks: true })
 			}
 		}
 	})
 }
 
-// 发送通知
+// Enviar notificación
 exports.handle = async (req, res, next) => {
-	//  获取当前content
+	// Obtener contenido actual
 	let { content, receivers = [], gateways = [], type } = req.body
 	$log.info('【notification】handle++++++', req.body)
 	if (!receivers.length) throw $APIError.BadRequest('error.receivers')
@@ -293,8 +294,8 @@ exports.handle = async (req, res, next) => {
 				let node = receivers[i]
 				const msgId = id++
 				if (id === 255) id = 0
-				// 生成语音包
-				// 1.判断节点是否开启对讲机功能，指定的是哪台网关, 定时删除，半个小时后
+				// Generar paquete de voz
+				// 1. Verificar si el nodo tiene habilitada la función de intercomunicación, qué puerta de enlace está especificada, eliminar después de media hora
 				$log.info('【notification】intercom node ++++++++++++', node)
 				if (node.intercom && node.pushType != INTERCOM_PUSH_TYPE.CALL) {
 					const intercomDevice = gateways.filter(dev => dev.sn == node.intercom)
@@ -308,7 +309,7 @@ exports.handle = async (req, res, next) => {
 						})
 					}
 				}
-				// 排队发消息
+				// Poner mensajes en cola
 				const messageResult = await addMessage({
 					path: node.path,
 					message: content,
@@ -325,14 +326,13 @@ exports.handle = async (req, res, next) => {
 				}
 			}
 		} else if (type === 'resource') {
-			//  找到绑定手表的所有节点，并查找这些节点是否绑定网关，如果是，则获取网关
-			// if (!gateways.length) {
+			// Encontrar todos los nodos vinculados al reloj y verificar si estos nodos están vinculados a una puerta de enlace, si es así, obtener la puerta de enlace
 			for (let i = 0; i < receivers.length; i++) {
 				let resource = receivers[i]
 				let devices = await getGateways(resource)
 				const msgId = id++
 				if (id === 255) id = 0
-				// 排队发消息
+				// Poner mensajes en cola
 				const sn = resource.sn
 				const broadcastAddr =
 					sn.substring(0, 3) + '.' + sn.substring(3, 6) + '.' + sn.substring(6, 9) + '.' + sn.substring(9, 12)
@@ -395,14 +395,15 @@ async function getGatewaysByNode(node, gateways) {
 			}
 		}
 		if (item.children) {
-			// 获取网关
+			// Obtener puertas de enlace
 			gateways = await getGatewaysByNode(item.children, gateways)
 		}
 	}
 	return gateways
 }
+
 exports.publish = async (req, res, next) => {
-	//  获取当前content
+	// Obtener contenido actual
 	let { content, id: nodeIds = [], title = '', type } = req.body
 	$log.info('【notification】publish++++', req.body)
 	let numExecuted = 0
@@ -411,7 +412,7 @@ exports.publish = async (req, res, next) => {
 	let result = 'successed'
 	try {
 		if (type === 'node') {
-			// 根据节点id找到符合的手表，网关
+			// Encontrar relojes y puertas de enlace que coincidan según el id del nodo
 			for (let i = 0; i < nodeIds.length; i++) {
 				let nodeId = nodeIds[i]
 				const node = await $db.Navigation.findNode({
@@ -435,8 +436,8 @@ exports.publish = async (req, res, next) => {
 					})
 				const msgId = id++
 				if (id === 255) id = 0
-				// 生成语音包
-				// 1.判断节点是否开启对讲机功能，指定的是哪台网关, 定时删除，半个小时后
+				// Generar paquete de voz
+				// 1. Verificar si el nodo tiene habilitada la función de intercomunicación, qué puerta de enlace está especificada, eliminar después de media hora
 				$log.info('publish===========', node)
 				if (node.intercom && node.pushType != INTERCOM_PUSH_TYPE.CALL) {
 					const intercomDevice = gateways.filter(dev => dev.sn == node.intercom)
@@ -452,7 +453,7 @@ exports.publish = async (req, res, next) => {
 					}
 				}
 
-				// 排队发消息
+				// Poner mensajes en cola
 				const messageResult = await addMessage({
 					path: node.path,
 					message: content,
@@ -469,15 +470,14 @@ exports.publish = async (req, res, next) => {
 				}
 			}
 		} else if (type === 'resource') {
-			//  找到绑定手表的所有节点，并查找这些节点是否绑定网关，如果是，则获取网关
-			// if (!gateways.length) {
+			// Encontrar todos los nodos vinculados al reloj y verificar si estos nodos están vinculados a una puerta de enlace, si es así, obtener la puerta de enlace
 			for (let i = 0; i < nodeIds.length; i++) {
 				let resource = nodeIds[i]
 				const sn = resource?.sn || resource
 				let devices = await getGateways(resource)
 				const msgId = id++
 				if (id === 255) id = 0
-				// 排队发消息
+				// Poner mensajes en cola
 				const broadcastAddr =
 					sn.substring(0, 3) + '.' + sn.substring(3, 6) + '.' + sn.substring(6, 9) + '.' + sn.substring(9, 12)
 				const messageResult = await addMessage({

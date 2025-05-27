@@ -5,13 +5,13 @@ const { omit } = require('lodash')
 
 module.exports = sequelize => {
 	class User extends Model {
-		// 创建token
+		// Crear token
 		token() {
 			return genToken({ id: this.username })
 		}
 
-		// 转换
-		// 返回给前端，有些数据是不能返回的，比如password
+		// Transformación
+		// Algunos datos no se pueden devolver al frontend, como la contraseña
 		transform() {
 			return omit(this.toJSON(), ['password'])
 		}
@@ -20,11 +20,11 @@ module.exports = sequelize => {
 	User.init(
 		{
 			resourceType: { type: DataTypes.STRING },
-			username: { type: DataTypes.STRING, primaryKey: true }, // 用户名
-			password: { type: DataTypes.STRING }, // 密码
-			decryptPassword: { type: DataTypes.STRING }, // 密码
-			role: { type: DataTypes.STRING, defaultValue: USER }, // 用户角色
-			menus: { type: DataTypes.STRING }, // 用户权限
+			username: { type: DataTypes.STRING, primaryKey: true }, // Nombre de usuario
+			password: { type: DataTypes.STRING }, // Contraseña
+			decryptPassword: { type: DataTypes.STRING }, // Contraseña descifrada
+			role: { type: DataTypes.STRING, defaultValue: USER }, // Rol del usuario
+			menus: { type: DataTypes.STRING }, // Permisos del usuario
 			type: { type: DataTypes.STRING },
 			age: { type: DataTypes.INTEGER },
 			fullname: { type: DataTypes.STRING },
@@ -32,8 +32,8 @@ module.exports = sequelize => {
 			address: { type: DataTypes.STRING },
 			email: { type: DataTypes.STRING },
 			mphone: { type: DataTypes.STRING },
-			avatar: { type: DataTypes.STRING }, // 头像url
-			path: { type: DataTypes.STRING }, // 以逗号,隔开，多个path
+			avatar: { type: DataTypes.STRING }, // URL del avatar
+			path: { type: DataTypes.STRING }, // Múltiples paths separados por comas
 			createdBy: {
 				type: DataTypes.JSON,
 				defaultValue: {}
@@ -41,11 +41,11 @@ module.exports = sequelize => {
 			code: { type: DataTypes.STRING },
 			description: { type: DataTypes.STRING },
 			birthplace: { type: DataTypes.STRING },
-			certType: { type: DataTypes.STRING }, // 证件类型
-			certNo: { type: DataTypes.STRING }, // 证件号
+			certType: { type: DataTypes.STRING }, // Tipo de documento
+			certNo: { type: DataTypes.STRING }, // Número de documento
 			status: { type: DataTypes.BOOLEAN, defaultValue: true },
-			deptId: { type: DataTypes.INTEGER }, // 所属部门id
-			postId: { type: DataTypes.INTEGER }, // 岗位id,
+			deptId: { type: DataTypes.INTEGER }, // ID del departamento al que pertenece
+			postId: { type: DataTypes.INTEGER }, // ID del puesto
 			remarks: { type: DataTypes.STRING }
 		},
 		{

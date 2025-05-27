@@ -1,12 +1,12 @@
 const fs = require('fs')
 const path = require('path')
 
-// .dat目录
+// Directorio .dat
 const LICENSE_DIR = appPath.resolve.data(process.env.LICENSE_DIR)
-// 证书文件
+// Archivo de licencia
 const LICENSE_FILE = path.resolve(LICENSE_DIR, process.env.LICENSE_NAME)
 
-// 获取应用是否授权
+// Obtener si la aplicación está autorizada
 exports.isValid = async (req, res, next) => {
 	return res.json({
 		...$licenseValidResult,
@@ -14,11 +14,11 @@ exports.isValid = async (req, res, next) => {
 	})
 }
 
-// 主动检查是否授权
-// 【弃用】：已经实现上传证书后自动检查
+// Verificar activamente si está autorizado
+// [DESCONTINUADO]: Ya se implementó la verificación automática después de cargar la licencia
 exports.checkValid = async (req, res, next) => {
 	try {
-		// 检查证书
+		// Verificar licencia
 		await $watcher.checkLicense()
 
 		return res.json({
@@ -30,15 +30,17 @@ exports.checkValid = async (req, res, next) => {
 	}
 }
 
-// 保存证书
+// Guardar licencia
 exports.saveLicense = async (req, res, next) => {
 	const { license } = req.body
 	try {
 		fs.writeFileSync(LICENSE_FILE, license, 'utf8')
 
-		// 返回
-		// 因为chokdir有防抖1s，更换文件要隔一段时间才能得到验证结果，如果这面等待有点不妥
-		// 此接口只负责覆盖证书，至于证书是否ok，需要前端自行isValid
+		// Retorno
+		// Debido a que chokdir tiene un debounce de 1s, el resultado de la verificación 
+		// después de cambiar el archivo toma un tiempo
+		// Esta interfaz solo es responsable de sobrescribir la licencia, 
+		// si la licencia es válida o no, el frontend debe verificarlo por sí mismo con isValid
 		return res.json({
 			sn: $$SN
 		})

@@ -2,7 +2,7 @@ const httpStatus = require('http-status')
 const { md5 } = require('../utils/crypto')
 const { Op } = require('sequelize')
 
-// 注册
+// Registro
 exports.register = async (req, res, next) => {
 	try {
 		let user
@@ -34,7 +34,7 @@ exports.register = async (req, res, next) => {
 				$db.Department.update({ related }, { where: { id: data.deptId }, individualHooks: true })
 			}
 		} catch (error) {
-			// 409
+			// Error 409 - Conflicto
 			throw $APIError.Conflict('error.username_conflict')
 		}
 		res.status(httpStatus.CREATED)
@@ -44,13 +44,13 @@ exports.register = async (req, res, next) => {
 	}
 }
 
-// 登入
+// Inicio de sesión
 exports.login = async (req, res, next) => {
 	try {
 		const { username, password } = req.body
 		const user = await $db.User.findByPk(username)
 		if (!user || user.password !== md5(password)) {
-			// 401
+			// Error 401 - No autorizado
 			throw $APIError.BadRequest('error.login')
 		}
 		return res.json({ token: user.token(), user: user.transform() })
@@ -59,7 +59,7 @@ exports.login = async (req, res, next) => {
 	}
 }
 
-// 修改密码
+// Cambiar contraseña
 exports.resetPassword = async (req, res, next) => {
 	try {
 		const { password: newPassword, oldPassword } = req.body
@@ -67,7 +67,7 @@ exports.resetPassword = async (req, res, next) => {
 
 		if (md5(oldPassword) === password) {
 			await $db.User.update({ password: md5(newPassword) }, { where: { username } })
-			// 修改密码后通过mqtt发送到设备
+			// Después de cambiar la contraseña, enviar a los dispositivos a través de MQTT
 			$messager.sendHostAttrs({ username, password: newPassword })
 			return res.json({})
 		} else {

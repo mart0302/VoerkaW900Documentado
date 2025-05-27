@@ -28,7 +28,7 @@ exports.create = async (req, res, next) => {
 		try {
 			package = await $db.Package.create(req.body)
 		} catch (error) {
-			// 409
+			// Error 409: Conflicto
 			throw $APIError.Conflict()
 		}
 		res.status(httpStatus.CREATED)
@@ -41,7 +41,7 @@ exports.create = async (req, res, next) => {
 exports.list = async (req, res, next) => {
 	try {
 		let { limit, offset, ...query } = req.query
-		//  特别参数的定制查询
+		// Consulta personalizada para parámetros especiales
 		const qry = {}
 		query.type && (qry.type = { [Op.eq]: query.type })
 
@@ -67,11 +67,11 @@ exports.remove = async (req, res, next) => {
 	const { package } = req.locals
 	const { id } = package
 	try {
-		// 先删除数据库记录
+		// Primero eliminar el registro de la base de datos
 		await $db.Package.destroy({
 			where: { id }
 		})
-		// 删除文件
+		// Eliminar archivos
 		fs.removeSync(path.join(packagesPath, id))
 		fs.removeSync(path.join(packagesPath, id + '.zip'))
 		return res.json(package)

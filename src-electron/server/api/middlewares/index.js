@@ -4,21 +4,21 @@ const multer = require('multer')
 const { CMD } = require('../../config/protocols')
 const { encodeMessage } = require('../../../utils.js')
 
-// 过滤数据 & 校验数据 中间件
+// Middleware de filtrado y validación de datos
 exports.validate = schema => (req, res, next) => {
-	// query 如果为空字符串，表示不查询这个数据，剔除
+	// Si query es una cadena vacía, significa que no se consulta este dato, se elimina
 	Object.keys(req.query).forEach(key => {
 		if (req.query[key].trim() === '') {
 			delete req.query[key]
 		}
 	})
-	// 过滤数据，如果schema中无定义，数据不传递到下一级中间件
+	// Filtra los datos, si no están definidos en el schema, no se pasan al siguiente middleware
 	req.body = pick(req.body, Object.keys(schema.body || {}))
-	// 有报错就报错了
+	// Si hay error, se lanza
 	validate(schema)(req, res, next)
 }
 
-// multer上传中间件
+// Middleware de carga multer
 const getMulter = options => {
 	const upload = multer(options).single('file')
 
@@ -42,7 +42,7 @@ const getMulter = options => {
 	}
 }
 
-// 二次封装上传中间件
+// Segunda encapsulación del middleware de carga
 exports.upload = options => {
 	const { types, maxSize, destination } = options
 	const typesArr = types.split(',')
@@ -59,7 +59,7 @@ exports.upload = options => {
 	})
 }
 
-// 编码中间件
+// Middleware de codificación
 exports.encode = (req, res, next) => {
 	const data = req.body
 	const { action } = req.params
@@ -79,7 +79,7 @@ exports.encode = (req, res, next) => {
 		next()
 	}
 }
-// 证书认证、软件激活
+// Verificación de certificado y activación de software
 exports.activated = (req, res, next) => {
 	if ($licenseValidResult.result) {
 		next()

@@ -6,11 +6,11 @@ module.exports = sequelize => {
 
 	Setting.init(
 		{
-			// key
+			// clave
 			key: { type: DataTypes.STRING, primaryKey: true },
-			// 所有的值
+			// todos los valores
 			value: { type: DataTypes.JSON },
-			// 描述
+			// descripción
 			description: { type: DataTypes.STRING }
 		},
 		{

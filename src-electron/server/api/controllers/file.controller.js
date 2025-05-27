@@ -7,14 +7,14 @@ const extract = require('extract-zip')
 
 const { image: imageConfig, package: packageConfig, audio: audioConfig } = uploadConfig
 
-// 图片上传
+// Subida de imágenes
 exports.image = async (req, res, next) => {
 	const { destination } = imageConfig
 	const destPath = appPath.resolve.data(destination)
 
 	const { path: oldPath } = req.file
 	if (!fs.existsSync(oldPath)) {
-		// 500错误
+		// Error 500
 		return next(new Error('error.upload_error'))
 	}
 	try {
@@ -29,19 +29,19 @@ exports.image = async (req, res, next) => {
 		return res.json({ url: `/${destination}/${fileName}` })
 	} catch (error) {
 		logger.error('upload image error:' + error.message)
-		// 500错误
+		// Error 500
 		return next(new Error('error.upload_error'))
 	}
 }
 
-// 安装包上传
+// Subida de paquetes
 exports.package = async (req, res, next) => {
 	const { destination } = packageConfig
 	const destPath = appPath.resolve.data(destination)
 
 	const { path: oldPath } = req.file
 	if (!fs.existsSync(oldPath)) {
-		// 500错误
+		// Error 500
 		return next(new Error('error.upload_error'))
 	}
 	try {
@@ -53,16 +53,16 @@ exports.package = async (req, res, next) => {
 		if (fs.existsSync(newPath)) {
 			fs.unlinkSync(oldPath)
 		} else {
-			// 移动到packages文件夹下
+			// Mover al directorio de paquetes
 			fs.renameSync(oldPath, newPath)
-			// 解压缩
+			// Descomprimir
 			try {
 				await extract(newPath, { dir: zipPath })
 			} catch (error) {
 				return next($APIError.BadRequest('error.extract_package'))
 			}
 		}
-		// TODO: 处理没有info.json
+		// TODO: Manejar caso cuando no existe info.json
 		if (!fs.existsSync(infoPath)) {
 			return next($APIError.BadRequest('error.parse_package'))
 		}
@@ -77,47 +77,47 @@ exports.package = async (req, res, next) => {
 		return res.json(package)
 	} catch (error) {
 		logger.error('upload package error:' + error.message)
-		// 500错误
+		// Error 500
 		return next(new Error('error.upload_error'))
 	}
 }
 
-// 音频上传
+// Subida de audio
 exports.audio = async (req, res, next) => {
 	const { destination } = audioConfig
 	const destPath = appPath.resolve.data(destination)
 
 	const { path: oldPath, originalname } = req.file
 	if (!fs.existsSync(oldPath)) {
-		// 500错误
+		// Error 500
 		return next(new Error('error.upload_error'))
 	}
 	try {
 		const newPath = path.join(destPath, originalname)
-		// 判断目标目录是否存在，不存在需创建
+		// Verificar si existe el directorio destino, crearlo si no existe
 		if (!fs.existsSync(destPath)) {
 			fs.mkdirsSync(destPath)
 		}
 		if (fs.existsSync(newPath)) {
 			fs.unlinkSync(oldPath)
 		} else {
-			// 移动到audios文件夹下
+			// Mover al directorio de audios
 			fs.renameSync(oldPath, newPath)
 		}
 		return res.json({ url: '' })
 	} catch (error) {
 		logger.error('upload audio error:' + error.message)
-		// 500错误
+		// Error 500
 		return next(new Error('error.upload_error'))
 	}
 }
 
-// 获取音频列表
+// Obtener lista de audios
 exports.getAudios = async (req, res, next) => {
 	const { destination } = audioConfig
 	const destPath = appPath.resolve.data(destination)
 	if (!fs.existsSync(destPath)) {
-		// 500错误
+		// Error 500
 		return res.json([])
 	}
 	try {
@@ -131,7 +131,7 @@ exports.getAudios = async (req, res, next) => {
 		return res.json(files)
 	} catch (error) {
 		logger.error('get audio list error:' + error.message)
-		// 500错误
+		// Error 500
 		return next(new Error('error.get_audios_error'))
 	}
 }

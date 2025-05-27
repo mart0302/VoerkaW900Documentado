@@ -1,5 +1,5 @@
 /**
- * 设备授权，暂时弃用
+ * Autorización de dispositivos, temporalmente en desuso
  */
 const { Op } = require('sequelize')
 const path = require('path')
@@ -34,11 +34,11 @@ exports.create = async (req, res, next) => {
 			throw $APIError.NotFound()
 		}
 		$log.info('destPath====', licensePath)
-		// 判断目标目录是否存在，不存在需创建
+		// Verificar si existe el directorio destino, crearlo si no existe
 		if (!fse.existsSync(licensePath)) {
 			fse.mkdirsSync(licensePath)
 		}
-		// 证书文件
+		// Archivo de licencia
 		fs.writeFileSync(path.join(licensePath, id + '.license'), license, 'utf8')
 		$log.info('fs.writeFileSync========')
 		let licenses = await $db.License.findOne({ where: { sn: id } })
@@ -50,18 +50,18 @@ exports.create = async (req, res, next) => {
 					type: device.type,
 					fileName: id + '.license'
 				})
-				// 注册设备证书监听
+				// Registrar monitor de licencia del dispositivo
 				installDeviceLicenseWatcher({ sn: id, licenseFile: path.join(licensePath, id + '.license') })
 			} catch (error) {
-				// 409
+				// Error 409
 				$log.info('create license error:', error)
 				throw $APIError.Conflict()
 			}
 		}
 		return res.json(licenses)
-		// 返回
-		// 因为chokdir有防抖1s，更换文件要隔一段时间才能得到验证结果，如果这面等待有点不妥
-		// 此接口只负责覆盖证书，至于证书是否ok，需要前端自行isValid
+		// Retornar
+		// Debido a que chokidar tiene un debounce de 1s, el resultado de la validación tarda un tiempo después de cambiar el archivo
+		// Esta interfaz solo se encarga de sobrescribir la licencia, el frontend debe verificar por sí mismo si la licencia es válida
 	} catch (error) {
 		return next(error)
 	}
@@ -70,7 +70,7 @@ exports.create = async (req, res, next) => {
 exports.list = async (req, res, next) => {
 	try {
 		let { limit, offset, ...query } = req.query
-		//  特别参数的定制查询
+		// Consulta personalizada para parámetros especiales
 		const qry = {}
 		query.type && (qry.type = { [Op.eq]: query.type })
 
@@ -96,12 +96,12 @@ exports.remove = async (req, res, next) => {
 	const { license } = req.locals
 	const { sn } = license
 	try {
-		// 先删除数据库记录
+		// Primero eliminar el registro de la base de datos
 		await $db.License.destroy({
 			where: { sn },
 			individualHooks: true
 		})
-		// 删除文件
+		// Eliminar archivo
 		fse.removeSync(path.join(licensePath, sn + '.license'))
 		return res.json(license)
 	} catch (error) {
@@ -109,10 +109,10 @@ exports.remove = async (req, res, next) => {
 	}
 }
 
-// 证书记录删除
+// Eliminación del registro de licencia
 $db.License.addHook('afterDestroy', async (license, options) => {
 	const { sn } = license
-	// 删除证书文件
-	// 删除文件
+	// Eliminar archivo de licencia
+	// Eliminar archivo
 	fse.removeSync(path.join(licensePath, sn + '.license'))
 })

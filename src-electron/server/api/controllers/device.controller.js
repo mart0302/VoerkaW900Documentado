@@ -12,39 +12,42 @@ const { destination } = licenseConfig
 const licensePath = appPath.resolve.data(destination)
 const { USE_DEVICE } = require('../../config/constant')
 
+// Verificar cantidad de dispositivos permitidos
 async function assertDeviceNumbers(toAdd = 1) {
 	const { result = {} } = $licenseValidResult || {}
 	if (result.deviceNumbers < 0) {
-		// 设备无限量
+		// Dispositivos ilimitados
 	} else if (result.deviceNumbers >= 0) {
 		const count = (await $db.Device.count()) + toAdd
-		// 设备限量
+		// Límite de dispositivos
 		if (count > result.deviceNumbers) {
 			throw $APIError.Forbidden('error.device_number_maximum')
 		}
 	} else {
-		// 证书无效（证书无效会在中间件中直接抛错，不会进来这里，此处只是顺便一写）
+		// Licencia inválida (la licencia inválida lanzará un error en el middleware, no llegará aquí, esto es solo por completitud)
 		throw $APIError.Forbidden('error.device_number_maximum')
 	}
 }
 
-// 根据设备类型获取attrs
+// Obtener atributos según el tipo de dispositivo
 function setAttrs(device) {
-	// 个性化属性
+	// Atributos personalizados
 	if (DEVICE_ATTRS[device.type]) {
-		// 设置lcd屏默认属性
+		// Establecer atributos predeterminados de pantalla LCD
 		device.attrs = DEVICE_ATTRS[device.type]
 	}
 	return device
 }
 
 /**
- * 技术选用说明
- * 设备认证：组播设置
- * 设备编辑\手动添加：组播设置，之所以不用“mqtt属性设置”，是因为组播设置相对比较稳定可行，如果是mqtt保不齐设备又没实现
+ * Explicación de la elección técnica
+ * Autenticación de dispositivos: configuración de multidifusión
+ * Edición/Adición manual de dispositivos: configuración de multidifusión
+ * Se usa multidifusión en lugar de "configuración de atributos MQTT" porque es más estable y confiable
+ * Con MQTT no podemos garantizar que el dispositivo lo implemente
  */
 
-// 加载
+// Cargar
 exports.load = async (req, res, next, id) => {
 	try {
 		id = id.toLowerCase()
@@ -59,21 +62,21 @@ exports.load = async (req, res, next, id) => {
 	}
 }
 
-// 获取设备
+// Obtener dispositivo
 exports.get = (req, res) => res.json(req.locals.device)
 
-// 新增
-// 结合权限控制 $licenseValidResult
+// Crear nuevo
+// Combinado con control de permisos $licenseValidResult
 exports.create = async (req, res, next) => {
 	try {
-		// 检查设备数量
+		// Verificar cantidad de dispositivos
 		await assertDeviceNumbers()
 
 		let device = req.body
 		try {
 			device = setAttrs(device)
 			device = (await $db.Device.create(req.body)).toJSON()
-			// 组播设置
+			// Configuración de multidifusión
 			if (device.model !== USE_DEVICE) await updateByMC({}, device, false)
 		} catch (error) {
 			// 409
@@ -86,40 +89,40 @@ exports.create = async (req, res, next) => {
 	}
 }
 
-// 编辑
+// Editar
 exports.update = async (req, res, next) => {
 	const { device } = req.locals
 	const { sn } = device
 	if (req.body.attrs?.logger?.server) {
-		// 发送属性变更事件
+		// Enviar evento de cambio de atributos
 		const payload = { logger: req.body.attrs.logger }
 		$messager.postAttrs(
-			{ to: device.sn, sid: true, domain: device.mqtt.domain || $userConfig.domain }, // domain可加可不加，因为此项目是单domain的
+			{ to: device.sn, sid: true, domain: device.mqtt.domain || $userConfig.domain }, // El dominio es opcional porque este proyecto usa un solo dominio
 			payload
 		)
 	}
 	const data = mergeDeepRight(device, req.body)
 	try {
-		// 更新数据库
+		// Actualizar base de datos
 		await $db.Device.update(data, { where: { sn } })
-		// 查询结果
+		// Consultar resultado
 		const newDevice = (await $db.Device.findByPk(sn)).toJSON()
-		// 组播设置
+		// Configuración de multidifusión
 		await updateByMC(device, newDevice)
-		// 返回
+		// Retornar
 		return res.json(newDevice)
 	} catch (error) {
 		return next(error)
 	}
 }
 
-// 删除设备
+// Eliminar dispositivo
 exports.remove = async (req, res, next) => {
 	const { device } = req.locals
 	const { sn } = device
 	try {
-		// 解绑关联设备
-		// 从关联资源上查找是否绑定该设备
+		// Desvincular dispositivos asociados
+		// Buscar si el dispositivo está vinculado en los recursos asociados
 		let lastNode = await $db.sequelize.query(
 			`SELECT Navigations.id, related FROM Navigations, json_each(Navigations.related) WHERE json_valid(Navigations.related) AND json_extract(json_each.value, '$.id') = '${id}'`,
 			{
@@ -128,11 +131,11 @@ exports.remove = async (req, res, next) => {
 		)
 		if (lastNode.length) {
 			lastNode = lastNode[0]
-			// 解绑
+			// Desvincular
 			let related = JSON.parse(lastNode.related).filter(item => item.id !== sn)
 			await $db.Navigation.update({ related }, { where: { id: lastNode.id }, individualHooks: true })
 		}
-		// 先删除数据库记录
+		// Primero eliminar el registro de la base de datos
 		await $db.Device.destroy({
 			where: { sn },
 			individualHooks: true
@@ -143,11 +146,11 @@ exports.remove = async (req, res, next) => {
 	}
 }
 
-// 批量删除设备
+// Eliminar múltiples dispositivos
 exports.removeList = async (req, res, next) => {
 	const { ids = [] } = req.body
 	try {
-		// 解绑关联设备
+		// Desvincular dispositivos asociados
 		let sns = ids.map(id => `'${id}'`)
 		sns = sns.join(',')
 		let lastNodes = await $db.sequelize.query(
@@ -158,12 +161,12 @@ exports.removeList = async (req, res, next) => {
 		)
 		if (lastNodes.length) {
 			lastNodes.map(async lastNode => {
-				// 解绑
+				// Desvincular
 				let related = JSON.parse(lastNode.related).filter(item => indexOf(ids, item.id) == -1)
 				await $db.Navigation.update({ related }, { where: { id: lastNode.id }, individualHooks: true })
 			})
 		}
-		// 删除证书文件
+		// Eliminar archivo de certificado
 		// ids.map(sn => {
 		// 	if ($devicesWatcher[sn]) {
 		// 		$devicesWatcher[sn].stop()
@@ -173,20 +176,20 @@ exports.removeList = async (req, res, next) => {
 		// 	}
 		// })
 
-		// 删除数据库记录
+		// Eliminar registro de la base de datos
 		let rows = 0
 		try {
 			rows = await $db.Device.destroy({
 				where: { sn: { [Op.in]: ids } },
-				individualHooks: true // 认情况下,类似 bulkCreate 的方法不会触发单独的 hook - 仅批量 hook. 但是,如果你还希望触发单个 hook, 可以配置individualHooks=true
+				individualHooks: true // Normalmente, métodos como bulkCreate no activarán hooks individuales - solo hooks en lote. Sin embargo, si deseas activar hooks individuales, puedes configurar individualHooks=true
 			})
 		} catch (e) {
-			// 如果删除失败，外键约束导致
+			// Si la eliminación falla, es debido a restricciones de clave foránea
 			await $db.Navigation.update({ device: null }, { where: { device: { [Op.in]: ids } }, individualHooks: true })
 			await $db.sequelize.query('PRAGMA foreign_keys = OFF')
 			rows = await $db.Device.destroy({
 				where: { sn: { [Op.in]: ids } },
-				individualHooks: true // 认情况下,类似 bulkCreate 的方法不会触发单独的 hook - 仅批量 hook. 但是,如果你还希望触发单个 hook, 可以配置individualHooks=true
+				individualHooks: true // Normalmente, métodos como bulkCreate no activarán hooks individuales - solo hooks en lote. Sin embargo, si deseas activar hooks individuales, puedes configurar individualHooks=true
 			})
 			await $db.sequelize.query('PRAGMA foreign_keys = ON')
 		}
@@ -198,11 +201,11 @@ exports.removeList = async (req, res, next) => {
 	}
 }
 
-// 获取设备列表
+// Obtener lista de dispositivos
 exports.list = async (req, res, next) => {
 	try {
 		let { limit, offset, ...query } = req.query
-		//  特别参数的定制查询
+		// Consulta personalizada para parámetros especiales
 		const qry = {}
 		query.sn && (qry.sn = { [Op.eq]: query.sn })
 		query.type && (qry.type = { [Op.eq]: query.type })
@@ -230,7 +233,7 @@ exports.list = async (req, res, next) => {
 	}
 }
 
-// 执行动作
+// Ejecutar acción
 exports.execute = async (req, res, next) => {
 	try {
 		const { device } = req.locals
@@ -261,13 +264,13 @@ exports.execute = async (req, res, next) => {
 	}
 }
 
-// 属性配置
+// Configuración de atributos
 exports.attrs = async (req, res, next) => {
 	try {
 		const { device } = req.locals
 		const payload = { ...req.body }
 		$messager.postAttrs(
-			{ to: device.sn, sid: true, domain: device.mqtt.domain || $userConfig.domain }, // domain可加可不加，因为此项目是单domain的
+			{ to: device.sn, sid: true, domain: device.mqtt.domain || $userConfig.domain }, // El dominio es opcional porque este proyecto usa un solo dominio
 			payload
 		)
 		return res.json({ device, payload })
@@ -276,8 +279,8 @@ exports.attrs = async (req, res, next) => {
 	}
 }
 
-// 升级
-// 升级其实也是一种动作
+// Actualización
+// La actualización también es un tipo de acción
 exports.upgrade = async (req, res, next) => {
 	try {
 		const { devices = [], package } = req.body
@@ -293,12 +296,12 @@ exports.upgrade = async (req, res, next) => {
 		let result = 'successed'
 		for (let index = 0; index < devs.length; index++) {
 			const device = devs[index]
-			// 由于设备不按常规将应答发送到对应的主题上，所以默认全部升级成功
+			// Como el dispositivo no envía la respuesta al tema correspondiente según lo convencional, asumimos que todas las actualizaciones son exitosas por defecto
 			// TODO: 升级失败只能通过mqtt.fx调试得出
-			// 只能说这是设备的锅不是我的锅，我这边得不到设备的响应，超时等待又太长，他们不按标准来，我也不惯着他们
+			// Solo puedo decir que es culpa del dispositivo, no mía. No puedo obtener respuesta del dispositivo, la espera por tiempo límite es muy larga, y como no siguen el estándar, no voy a complacerlos
 			const sid = $messager._sid
 			$messager.postAction(
-				{ to: device.sn, sid: true, domain: device.mqtt.domain || $userConfig.domain }, // domain可加可不加，因为此项目是单domain的
+				{ to: device.sn, sid: true, domain: device.mqtt.domain || $userConfig.domain }, // El dominio es opcional porque este proyecto usa un solo dominio
 				{ action: 'upgrade', url: pkg.url }
 			)
 			await $messager._takeARest()
@@ -322,8 +325,8 @@ exports.upgrade = async (req, res, next) => {
 	}
 }
 
-// 设备认证
-// 做不了批量，一个个进行设备认证，认证完毕更新数据库
+// Autenticación de dispositivos
+// No se puede hacer en lote, se autentica uno por uno y se actualiza la base de datos
 const getWorkID = genWorkerID()
 exports.authorize = async (req, res, next) => {
 	try {
@@ -332,17 +335,17 @@ exports.authorize = async (req, res, next) => {
 		let { devices } = req.body
 		devices = uniqBy(devices, 'sn')
 
-		// 检查设备数量
+		// Verificar cantidad de dispositivos
 		await assertDeviceNumbers(devices.length)
 
 		const devicesMap = {}
-		// 处理父子设备问题
+		// Manejar problema de dispositivos padre-hijo
 		devices.forEach(device => {
 			if (device.parent) {
-				// 有父设备
+				// Tiene dispositivo padre
 				let parent = $discoverService.cache[device.parent]
 				if (!parent) {
-					// 找不到父设备
+					// No se encuentra el dispositivo padre
 					logger.error(`${device.sn} cannot find parent: ${device.parent}`)
 					failed.push(device.sn)
 				} else {
@@ -356,16 +359,16 @@ exports.authorize = async (req, res, next) => {
 					devicesMap[parent.sn] = parent
 				}
 			} else {
-				// 无父设备
-				// 且当前未获取设备；
-				// 可能情况：前端批量认证设备，选择父子同时认证，[子，父]，则进入循环，先处理子设备，上述代码会自动添加父设备，此处就无需再添加了
+				// Sin dispositivo padre
+				// Y el dispositivo actual no ha sido obtenido
+				// Posible escenario: autenticación masiva desde el frontend, selección de autenticación simultánea padre-hijo, [hijo, padre], entonces entra en el ciclo, procesa primero el dispositivo hijo, el código anterior agregará automáticamente el dispositivo padre, así que aquí no es necesario agregarlo
 				if (!devicesMap[device.sn]) {
 					devicesMap[device.sn] = device
 				}
 			}
 		})
 
-		// 处理设备
+		// Procesar dispositivos
 		devices = Object.values(devicesMap)
 		for (let index = 0; index < devices.length; index++) {
 			const device = setAttrs(devices[index])
@@ -376,14 +379,14 @@ exports.authorize = async (req, res, next) => {
 					workerID: getWorkID(),
 					online: false
 				})
-				// 数据库存储，先存储子设备
+				// Almacenamiento en base de datos, primero almacenar dispositivos hijo
 				if (device.children) {
 					for (let j = 0; j < device.children.length; j++) {
 						const sub = device.children[j]
 						try {
 							let title = sub.sn
 							// mergeData(sub, { title: sub.sn })
-							// await $db.Device.upsert(sub) // 用这种方法，如果该设备已经存在，title会被修改
+							// await $db.Device.upsert(sub) // Con este método, si el dispositivo ya existe, el título será modificado
 							const oldDevice = await $db.Device.findByPk(sub.sn)
 							if (oldDevice) {
 								title = oldDevice.dataValues.title
@@ -403,7 +406,7 @@ exports.authorize = async (req, res, next) => {
 				}
 				mergeData(device, { title })
 				await $db.Device.upsert(device)
-				// 处理本设备
+				// Procesar este dispositivo
 				// mergeData(device, { title: device.sn })
 				// await $db.Device.upsert(device)
 				success.push(device.sn)
@@ -417,8 +420,8 @@ exports.authorize = async (req, res, next) => {
 	}
 }
 
-/** 组播相关 */
-// 通过组播设置mqtt
+/** Relacionado con multidifusión */
+// Configurar MQTT mediante multidifusión
 // Cmd==1
 async function updateMqttByMC(device, mqtt) {
 	if (!mqtt) {
@@ -436,7 +439,7 @@ async function updateMqttByMC(device, mqtt) {
 	return mqtt
 }
 
-// 通过组播设置网络
+// Configurar red mediante multidifusión
 // Cmd==2
 async function updateNetworksByMC(oldDevice, newDevice) {
 	await setByMC(oldDevice, 2, {
@@ -456,7 +459,7 @@ async function updateNetworksByMC(oldDevice, newDevice) {
 	})
 }
 
-// 通过组播设置wifi
+// Configurar WiFi mediante multidifusión
 // Cmd==3
 async function updateWifiByMC(device) {
 	const { wifi = {} } = device
@@ -469,7 +472,7 @@ async function updateWifiByMC(device) {
 	})
 }
 
-// 通过组播设置安装位置
+// Configurar ubicación mediante multidifusión
 // Cmd==4
 async function updateLocationByMC(device) {
 	const { location = {} } = device
@@ -481,9 +484,9 @@ async function updateLocationByMC(device) {
 	})
 }
 
-// 通过组播更新设备
+// Actualizar dispositivo mediante multidifusión
 async function updateByMC(oldDevice = {}, newDevice = {}, setNetworks = true) {
-	// 深度比较mqtt
+	// Comparación profunda de MQTT
 	if (!isEqual(newDevice.mqtt, oldDevice.mqtt)) {
 		await updateMqttByMC(newDevice, newDevice.mqtt)
 	}
@@ -498,22 +501,22 @@ async function updateByMC(oldDevice = {}, newDevice = {}, setNetworks = true) {
 		await updateLocationByMC(newDevice)
 	}
 
-	// 最后更新网络
+	// Finalmente actualizar la red
 	if (setNetworks) {
 		if (!isEqual(newDevice.networks, oldDevice.networks)) {
 			await updateNetworksByMC(oldDevice, newDevice)
 		}
 	}
-	// 暂时在这处理修改title，本应该使用hook，但是目前还没搞明白怎么弄
+	// Temporalmente manejamos la modificación del título aquí, debería usar un hook, pero aún no he descubierto cómo hacerlo
 	if (!isEqual(newDevice.title, oldDevice.title)) {
 		$messager.postAttrs(
-			{ to: newDevice.sn, sid: true, domain: newDevice.mqtt.domain || $userConfig.domain }, // domain可加可不加，因为此项目是单domain的
+			{ to: newDevice.sn, sid: true, domain: newDevice.mqtt.domain || $userConfig.domain }, // El dominio es opcional porque este proyecto usa un solo dominio
 			{ title: newDevice.title }
 		)
 	}
 }
 
-// 通过组播设置
+// Configuración mediante multidifusión
 async function setByMC(device, cmd, payload = {}) {
 	const { sn, source, networks = [], type } = device
 	const ip = networks[0].ip
@@ -521,16 +524,16 @@ async function setByMC(device, cmd, payload = {}) {
 		throw new $APIError.BadRequest('error.device_no_response')
 	}
 
-	// 组播设置
+	// Configuración de multidifusión
 	try {
 		const data = {
 			sn,
-			source: source || 'MULTICAST', // 从被发现设备上原样携带
-			targetIP: ip, // 当配置目标是 ip 地址时应携带此信息
-			cmd, // 见协议
+			source: source || 'MULTICAST', // Llevar tal cual desde el dispositivo descubierto
+			targetIP: ip, // Cuando el objetivo de configuración es una dirección IP, debe llevar esta información
+			cmd, // Ver protocolo
 			payload
 		}
-		// 解决手动添加lora手表因设备发现卡很久问题
+		// Resolver el problema de que la adición manual del reloj lora se queda atascada durante mucho tiempo en el descubrimiento de dispositivos
 		if (type !== 'lora_watch') {
 			await $discoverService.configDiscovered(data)
 		}
@@ -540,13 +543,13 @@ async function setByMC(device, cmd, payload = {}) {
 	}
 }
 
-/** 工具方法 */
-// 添加数据给设备
+/** Métodos de utilidad */
+// Agregar datos al dispositivo
 function mergeDataToDevice(data = {}) {
 	return (...devices) => Object.assign(...devices, data)
 }
 
-// 获取workerID
+// Obtener ID de trabajador
 function genWorkerID() {
 	let workerID = 0
 	return () => workerID++ % 1024

@@ -5,7 +5,7 @@ const { TRANSACTION_RESULT, TRANSACTION_STATUS } = require('@voerka/messager')
 
 const Model = $db.Transaction
 
-// 加载
+// Cargar
 exports.load = async (req, res, next, id) => {
 	try {
 		const data = await Model.findByPk(id)
@@ -19,7 +19,7 @@ exports.load = async (req, res, next, id) => {
 	}
 }
 
-// 获取
+// Obtener
 exports.get = async (req, res) => {
 	try {
 		const { data } = req.locals
@@ -43,7 +43,7 @@ exports.get = async (req, res) => {
 	}
 }
 
-// 新增
+// Crear nuevo
 exports.create = async (req, res, next) => {
 	try {
 		let data
@@ -51,7 +51,7 @@ exports.create = async (req, res, next) => {
 			data = await Model.create(req.body)
 		} catch (error) {
 			// SQLITE_CONSTRAINT: FOREIGN KEY constraint failed
-			// 404 外键未找到
+			// Error 404: clave foránea no encontrada
 			throw $APIError.NotFound()
 		}
 		res.status(httpStatus.CREATED)
@@ -61,27 +61,27 @@ exports.create = async (req, res, next) => {
 	}
 }
 
-// 编辑
+// Editar
 exports.update = async (req, res, next) => {
 	const { data } = req.locals
 	const updateData = mergeDeepRight(data, req.body)
 	try {
-		// 更新数据库
+		// Actualizar base de datos
 		await Model.update(updateData, { where: { id: data.id }, individualHooks: true })
-		// 查询结果
+		// Consultar resultado
 		const newData = await Model.findByPk(data.id)
-		// 返回
+		// Retornar
 		return res.json(newData)
 	} catch (error) {
 		return next(error)
 	}
 }
 
-// 删除
+// Eliminar
 exports.remove = async (req, res, next) => {
 	const { data } = req.locals
 	try {
-		// 先删除数据库记录
+		// Primero eliminar el registro de la base de datos
 		await Model.destroy({
 			where: { id: data.id },
 			individualHooks: true
@@ -92,11 +92,11 @@ exports.remove = async (req, res, next) => {
 	}
 }
 
-// 批量删除
+// Eliminar múltiples elementos
 exports.removeList = async (req, res, next) => {
 	const { ids = [] } = req.body
 	try {
-		// 删除数据库记录
+		// Eliminar registros de la base de datos
 		const rows = await Model.destroy({
 			where: { id: { [Op.in]: ids } },
 			individualHooks: true
@@ -109,11 +109,11 @@ exports.removeList = async (req, res, next) => {
 	}
 }
 
-// 获取列表
+// Obtener lista
 exports.list = async (req, res, next) => {
 	try {
 		let { limit, offset, ...query } = req.query
-		// 预处理
+		// Preprocesamiento
 		if (query.code) {
 			query.code = parseArrayNum(query.code)
 		}
@@ -132,7 +132,7 @@ exports.list = async (req, res, next) => {
 		if (query.handler) {
 			query.handler = JSON.parse(query.handler)
 		}
-		//  特别参数的定制查询
+		// Consulta personalizada para parámetros especiales
 		const qry = {}
 		query.title && (qry.title = { [Op.like]: `%${query.title}%` })
 		query.code && (qry.code = { [Op.in]: query.code })
@@ -169,18 +169,18 @@ exports.list = async (req, res, next) => {
 	}
 }
 
-// 处理事务/忽略事务
+// Procesar transacción/Ignorar transacción
 exports.handle = async (req, res, next) => {
 	const { data } = req.locals
-	// TODO: 获取当前登入的用户id，userId
+	// TODO: Obtener el ID del usuario actualmente conectado, userId
 	// const { result, progress, remarks = '' } = req.body
 	try {
-		// 处理实体事务
+		// Procesar transacción de entidad
 		await $messager.handleEntityTransaction(data, {
 			...req.body,
 			message: req.__('transaction.handle')
 		})
-		// 返回最新的事务数据
+		// Retornar los datos más recientes de la transacción
 		const transaction = await $db.Transaction.findByPk(data.id)
 		return res.json(transaction)
 	} catch (error) {

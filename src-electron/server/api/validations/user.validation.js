@@ -56,7 +56,7 @@ module.exports = {
 		}
 	},
 
-	// 批量删除
+	// Eliminación por lotes
 	removeUsers: {
 		body: {
 			users: Joi.array().items(Joi.string())

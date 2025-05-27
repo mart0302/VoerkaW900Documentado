@@ -1,7 +1,7 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 创建升级包
+	// Creación de un paquete de actualización
 	createPackage: {
 		body: {
 			id: Joi.string().required(),
@@ -20,7 +20,7 @@ module.exports = {
 			remarks: Joi.string().empty('').default('')
 		}
 	},
-	// 获取列表
+	// Obtener lista
 	listPackages: {
 		query: {
 			limit: Joi.number().integer().min(1).max(100).default(20),

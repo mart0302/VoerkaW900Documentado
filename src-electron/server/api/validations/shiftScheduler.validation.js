@@ -1,14 +1,14 @@
 const Joi = require('joi')
 
 module.exports = {
-	// 批量删除
+	// Eliminación por lotes
 	removeShift: {
 		body: {
 			ids: Joi.array().items(Joi.number())
 		}
 	},
 
-	// 获取列表
+	// Obtener lista
 	listShift: {
 		query: {
 			nodeId: Joi.number().min(1),
@@ -23,7 +23,7 @@ module.exports = {
 		}
 	},
 
-	// 更新
+	// renovar
 	updateShift: {
 		body: {
 			nodeId: Joi.number().min(1),

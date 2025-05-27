@@ -6,9 +6,9 @@ module.exports = sequelize => {
 
 	Setting.init(
 		{
-			// clave
+			// llave
 			key: { type: DataTypes.STRING, primaryKey: true },
-			// todos los valores
+			// valores
 			value: { type: DataTypes.JSON },
 			// descripción
 			description: { type: DataTypes.STRING }

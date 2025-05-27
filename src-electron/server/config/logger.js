@@ -1,7 +1,7 @@
 /**
- * 调整server日志模块，统一接入electron日志 2021.7.24 by scl
+ * Ajuste del módulo de registro del servidor, integración unificada con el registro de electron 2021.7.24 por scl
  *
- * 注: 如果要分离出server单独运行，请查阅之前的commit，还原即可
+ * Nota: Si necesita separar el servidor para ejecutarlo de forma independiente, consulte los commits anteriores y restaure
  */
 // const log = require('electron-log')
 const log = $log

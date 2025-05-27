@@ -1,7 +1,7 @@
 const path = require('path')
 const i18n = require('i18n')
 const fs = require('fs')
-// 国际化
+// internacionalización
 const directory = path.join(__dirname, '../api/locales')
 const locales = fs.readdirSync(directory).map(item => path.parse(item).name)
 

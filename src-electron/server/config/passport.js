@@ -1,5 +1,5 @@
-// express解析Bearer Token
-// 理论上也是中间件，但是普遍且在路由之前，所以沿随模板使用
+// express analiza Bearer Token
+// teóricamente también es middleware, pero es común y se ejecuta antes del enrutamiento, así que se mantiene siguiendo la plantilla
 const JwtStrategy = require('passport-jwt').Strategy
 const { ExtractJwt } = require('passport-jwt')
 const { jwtSecret } = require('./vars')
@@ -14,7 +14,7 @@ const jwt = async (payload, done) => {
 	try {
 		const { type, sub } = payload
 		if (type === RES_TYPE_DEVICE) {
-			// 设备类型
+			// tipo dispositivo
 			const device = await $db.Device.findByPk(sub)
 			if (device)
 				return done(null, {

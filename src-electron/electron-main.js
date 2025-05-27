@@ -272,7 +272,7 @@ function bootstrap() {
 	printAppInfo()
 }
 
-// 打印应用一些信息
+// Imprimir alguna información de la aplicación
 function printAppInfo() {
 	printDivider()
 	$log.info(`NODE_ENV: ${process.env.NODE_ENV}`)

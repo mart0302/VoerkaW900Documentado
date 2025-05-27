@@ -75,12 +75,12 @@ exports.useCache = function useCache(fetch, { max = 200, life = 3 * 60 * 1000, o
 	}
 }
 
-// 缓存 key-value缓存
+// Caché key-value
 exports.useKVCache = function useCache({ max = 200, life = 60 * 60 * 1000 } = {}) {
-	// 缓存池
+	// Pool de caché
 	const caches = {}
 
-	// 清理缓存
+	// Limpiar caché
 	function cleanCache() {
 		const hits = Object.entries(caches)
 		const nowTime = Date.now()
@@ -94,11 +94,11 @@ exports.useKVCache = function useCache({ max = 200, life = 60 * 60 * 1000 } = {}
 		}
 	}
 
-	// 从缓存中获取
+	// Obtener de la caché
 	function get(key) {
-		// 先清缓存
+		// Limpiar caché primero
 		cleanCache()
-		// 再获取
+		// Luego obtener
 		const hit = caches[key]
 		if (!hit || hit.expired < Date.now()) {
 			delete caches[key]
@@ -108,24 +108,24 @@ exports.useKVCache = function useCache({ max = 200, life = 60 * 60 * 1000 } = {}
 		}
 	}
 
-	// 设置缓存
+	// Establecer caché
 	function set(key, value = undefined) {
 		if (value) {
-			// 时间重新计算
+			// Recalcular tiempo
 			caches[key] = { expired: Date.now() + life, value }
 		} else {
 			delete caches[key]
 		}
 	}
 
-	// 查询
+	// Consulta
 	return {
 		get,
 		set
 	}
 }
 
-// 生成token
+// Generar token
 exports.genToken = function ({ id, type = RES_TYPE_USER }) {
 	const payload = {
 		exp: moment().add(jwtExpirationDays, 'days').unix(),
@@ -136,7 +136,7 @@ exports.genToken = function ({ id, type = RES_TYPE_USER }) {
 	return jwt.encode(payload, jwtSecret)
 }
 
-// 字符串转数组
+// Convierte una cadena en un array de números
 function parseArrayNum(str) {
 	return str
 		.split(',')
@@ -145,7 +145,7 @@ function parseArrayNum(str) {
 }
 exports.parseArrayNum = parseArrayNum
 
-// 字符串转时间查询
+// Convierte una cadena en una consulta de tiempo
 exports.parseTimeQuyer = function (str) {
 	let empty = true
 	const query = {}
@@ -158,6 +158,6 @@ exports.parseTimeQuyer = function (str) {
 		query[Op.lte] = times[1]
 		empty = false
 	}
-	// isEmpty 判断不了Symbol
+	// isEmpty no puede comprobar Symbol
 	return empty ? undefined : query
 }

@@ -1,0 +1,57 @@
+{
+	"zh": {
+		"0": "等待",
+		"1": "处理中",
+		"2": "完成"
+	},
+	"en": {
+		"0": "Todo",
+		"1": "Progressing",
+		"2": "Completed"
+	},
+	"ru": {
+		"0": "Сделать",
+		"1": "Прогрессирует",
+		"2": "Завершенный"
+	},
+	"fr": {
+		"0": "Faire",
+		"1": "Progresser",
+		"2": "Complété"
+	},
+	"ar": {
+		"0": "لكى يفعل",
+		"1": "تتقدم",
+		"2": "مكتمل"
+	},
+	"es": {
+		"0": "Hacer",
+		"1": "Progresando",
+		"2": "Terminado"
+	},
+	"pt": {
+		"0": "Façam",
+		"1": "Progredindo",
+		"2": "Concluído"
+	},
+	"de": {
+		"0": "Machen",
+		"1": "Fortschritt",
+		"2": "Vollendet"
+	},
+	"pl": {
+		"0": "Do zrobienia",
+		"1": "Postępy",
+		"2": "Zakończony"
+	},
+	"tr": {
+		"0": "Yapmak",
+		"1": "ilerleme",
+		"2": "Tamamlanmış"
+	},
+	"ja": {
+		"0": "Todo",
+		"1": "進行中",
+		"2": "完了"
+	}
+}

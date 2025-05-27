@@ -2,8 +2,8 @@ const Sequelize = require('sequelize')
 
 const config = appPath.loadSequelizeConfig(process.env.SEQUELIZE_DB_TYPE)
 
-// process.env.SEQUELIZE_DB_TYP = default 代表目标数据库为初始化数据目录下数据库，即当前只是脚本跑种子文件
-// process.env.SEQUELIZE_DB_TYP = user 代表目标数据库为用户目录下的数据库，即当前是正常运行
+// process.env.SEQUELIZE_DB_TYPE = default significa que la base de datos de destino está en el directorio de inicialización de datos, es decir, actualmente solo se ejecutan los archivos semilla
+// process.env.SEQUELIZE_DB_TYPE = user significa que la base de datos de destino está en el directorio del usuario, es decir, actualmente está en ejecución normal
 
 if (!process.env.SEQUELIZE_DB_TYPE && $userConfig.sequelizeLogging) {
 	const logger = require('./logger')

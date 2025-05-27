@@ -1,13 +1,13 @@
 const { merge } = require('lodash')
 
-// 加载数据库settings到内存
+// cargar settings de la base de datos a memoria
 module.exports = class Settings {
 	constructor(db) {
 		this.db = db
 		this.data = {}
 	}
 
-	// 加载
+	// cargar
 	async load() {
 		const data = (await this.db.Setting.findAll()).map(item => item.toJSON())
 		this.data = data.reduce((total, item) => {
@@ -16,7 +16,7 @@ module.exports = class Settings {
 		}, {})
 	}
 
-	// 更新配置
+	// actualizar configuración
 	async update(key, value, options = {}) {
 		await this.db.Setting.upsert({
 			...options,
@@ -28,7 +28,7 @@ module.exports = class Settings {
 		return setting
 	}
 
-	// 获取
+	// obtener
 	get(key) {
 		return this.data[key]
 	}

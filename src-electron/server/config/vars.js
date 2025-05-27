@@ -1,4 +1,4 @@
-// 如果还没加载环境变量，则加载环境变量
+// Si las variables de entorno no están cargadas, cargarlas
 if (!process.env.JWT_SECRET) {
 	require('dotenv-safe').load({
 		path: '.env',
@@ -12,7 +12,7 @@ module.exports = {
 	jwtExpirationDays: process.env.JWT_EXPIRATION_DAYS,
 	logs: process.env.NODE_ENV === 'production' ? 'combined' : 'dev',
 	upload: {
-		temps: 'temps', // 上传临时文件存储位置
+		temps: 'temps', // ubicación de almacenamiento temporal de archivos subidos
 		image: {
 			destination: process.env.IMAGE_DESTINATION,
 			types: process.env.IMAGE_TYPES,

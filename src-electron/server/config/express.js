@@ -13,59 +13,59 @@ const error = require('../api/middlewares/error')
 const i18n = require('./i18n')
 
 /**
- * Express instance
+ * Instancia de Express
  * @public
  */
 const app = express()
 
-// 将用户数据文件夹 公开
+// hacer pública la carpeta de datos del usuario
 app.use(express.static(appPath.dataDir))
 
-// 将web public文件夹 公开（开发环境下没什么用，但是提供生产环境下的web运行）
+// hacer pública la carpeta web public (no es útil en entorno de desarrollo, pero proporciona la ejecución web en producción)
 app.use(express.static(appPath.publicDir))
 
-// request logging. dev: console | production: file
+// registro de solicitudes. dev: consola | producción: archivo
 app.use(morgan(logs))
 
-// parse body params and attache them to req.body
+// analizar parámetros del body y adjuntarlos a req.body
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
-// gzip compression
+// compresión gzip
 app.use(compress())
 
-// lets you use HTTP verbs such as PUT or DELETE
-// in places where the client doesn't support it
+// permite usar verbos HTTP como PUT o DELETE
+// en lugares donde el cliente no los soporta
 app.use(methodOverride())
 
-// secure apps by setting various HTTP headers
+// asegurar aplicaciones configurando varias cabeceras HTTP
 app.use(helmet())
 
-// enable CORS - Cross Origin Resource Sharing
+// habilitar CORS - Compartición de Recursos de Origen Cruzado
 app.use(cors())
 
-// enable authentication
+// habilitar autenticación
 app.use(passport.initialize())
 passport.use('jwt', strategies.jwt)
 
-// 国际化
+// internacionalización
 app.use(i18n.init)
 
-// mount api v1 routes
+// montar rutas de api v1
 app.use('/api/v1', routes)
 
-// 所有voerka类的接口一律返回200 ok
+// todas las interfaces de tipo voerka devuelven 200 ok
 app.use('/apps', (req, res, next) => {
 	return res.json({ OK: true })
 })
 
-// if error is not an instanceOf APIError, convert it.
+// si el error no es una instancia de APIError, convertirlo
 app.use(error.converter)
 
-// catch 404 and forward to error handler
+// capturar 404 y enviar al manejador de errores
 app.use(error.notFound)
 
-// error handler, send stacktrace only during development
+// manejador de errores, envía stacktrace solo durante desarrollo
 app.use(error.handler)
 
 module.exports = app

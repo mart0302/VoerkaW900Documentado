@@ -9,11 +9,11 @@ const STRATEGYS = {
 	CLOSURE_TABLE: 'closure_table'
 }
 module.exports = function useTreeModel(TreeModel) {
-	// init方法重写
+	// método init sobrescrito
 	const init = TreeModel.init
 	TreeModel.init = function (attributes, options) {
 		let { tree = {}, indexes } = options
-		// 处理参数
+		// procesar parámetros
 		const _t = mergeDeepRight(
 			{
 				strategy: STRATEGYS.PATH_ENUMERATIONS,
@@ -27,19 +27,19 @@ module.exports = function useTreeModel(TreeModel) {
 		)
 		TreeModel._tree_options = _t
 
-		// 索引添加path
+		// agregar índice path
 		if (!indexes) {
 			options.indexes = []
 			indexes = options.indexes
 		}
 		indexes.push({ fields: [_t.path] })
 
-		// 实际初始化
+		// inicialización real
 		return init.call(
 			TreeModel,
 			{
 				...attributes,
-				[_t.path]: { type: DataTypes.STRING }, // 路径
+				[_t.path]: { type: DataTypes.STRING }, // ruta
 				[_t.pid]: {
 					type: DataTypes.VIRTUAL,
 					get() {
@@ -57,16 +57,16 @@ module.exports = function useTreeModel(TreeModel) {
 		)
 	}
 
-	// 获取节点-findOne
+	// obtener nodo-findOne
 	TreeModel.findNode = async function (options = {}) {
 		const _t = TreeModel._tree_options
-		// 未找到直接原样返回
+		// si no se encuentra, devolver tal cual
 		const node = await TreeModel.findOne(options)
 		if (!node) {
 			return node
 		}
-		// 查询子节点，并组装返回
-		const { level = -1 } = options.tree || {} // level < 0 代表获取全部子节点
+		// consultar nodos hijos y ensamblar retorno
+		const { level = -1 } = options.tree || {} // level < 0 significa obtener todos los nodos hijos
 		const children = await TreeModel.findAll({ where: { [_t.path]: { [Op.like]: `${curPath(node)}%` } } })
 		return rebuildTree(node, children)
 	}

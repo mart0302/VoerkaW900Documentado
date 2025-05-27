@@ -12,17 +12,17 @@ exports.load = async (req, res, next, id) => {
 	}
 }
 
-// 获取配置
+// Obtener configuración
 exports.get = (req, res) => res.json(req.locals.setting)
 
-// 更新配置
+// Actualizar configuración
 exports.update = async (req, res, next) => {
 	try {
 		const { key } = req.locals.setting
 		const { value, ...options } = req.body
 		const setting = await $settings.update(key, value, options)
 		if (key === 'current_language') {
-			// 下发属性变更事件
+			// Enviar evento de cambio de atributos
 			$messager.sendHostAttrs(value)
 		}
 		return res.json(setting)
@@ -31,7 +31,7 @@ exports.update = async (req, res, next) => {
 	}
 }
 
-// 创建
+// Crear
 exports.create = async (req, res, next) => {
 	try {
 		const { key, value, ...options } = req.body
@@ -46,7 +46,7 @@ exports.create = async (req, res, next) => {
 	}
 }
 
-// 获取列表
+// Obtener lista
 exports.list = async (req, res, next) => {
 	try {
 		let { count: total, rows: data } = await $db.Setting.findAndCountAll({

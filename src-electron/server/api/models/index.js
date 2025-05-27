@@ -16,13 +16,14 @@ module.exports = function (sequelize) {
 
 	const TtsAudio = require('./ttsAudio')(sequelize)
 
-	/** 数据库表关联 */
-	// 事件与设备关联(单向:因为一个设备的事件是在太多了，不适合做外键，适合写专门的接口获取)
-	// 设备删除（主表删除），事件删除（从表跟随删除）
+	/** Relaciones entre tablas de la base de datos */
+	// Relación entre eventos y dispositivos (unidireccional: hay demasiados eventos para un dispositivo, 
+	// no es adecuado usar clave externa, es mejor escribir una interfaz específica para obtenerlos)
+	// Al eliminar dispositivo (tabla principal), se eliminan los eventos (tabla secundaria sigue la eliminación)
 	Event.belongsTo(Device, { as: 'source', foreignKey: 'sn', onDelete: 'CASCADE' })
 
-	// 事件与事务关联(双向)
-	// 默认事务删除（主表删除），事件tid设置未NULL（SET NULL）
+	// Relación entre eventos y transacciones (bidireccional)
+	// Por defecto, al eliminar la transacción (tabla principal), el tid del evento se establece como NULL (SET NULL)
 	Event.belongsTo(Transaction, { as: 'transaction', foreignKey: 'tid' })
 	Transaction.hasMany(Event, { as: 'events', foreignKey: 'tid' })
 	Transaction.belongsTo(Device, { as: 'source', foreignKey: 'sn', onDelete: 'CASCADE' })

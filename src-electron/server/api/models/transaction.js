@@ -2,31 +2,31 @@ const { Model, DataTypes } = require('sequelize')
 const { EVENT_TYPE } = requireConfig('constant')
 const { TRANSACTION_RESULT, TRANSACTION_STATUS } = require('@voerka/messager')
 
-// 初始化方法
+// método de inicialización
 module.exports = sequelize => {
 	class Transaction extends Model {}
 	Transaction.init(
 		{
-			id: { type: DataTypes.STRING, primaryKey: true }, // 事务id，雪花算法生成，生成的数可能是大数，所以用string存储
+			id: { type: DataTypes.STRING, primaryKey: true }, // ID de transacción, generado por algoritmo snowflake, se almacena como string porque puede ser un número grande
 
 			status: { type: DataTypes.NUMBER, defaultValue: TRANSACTION_STATUS.PROGRESSING },
 			result: { type: DataTypes.NUMBER, defaultValue: TRANSACTION_RESULT.HANDLING },
-			progress: { type: DataTypes.NUMBER, defaultValue: 0 }, // 事务进度
+			progress: { type: DataTypes.NUMBER, defaultValue: 0 }, // progreso de la transacción
 			precaution: { type: DataTypes.BOOLEAN, defaultValue: false },
 			startTime: { type: DataTypes.DATE, defaultValue: new Date() },
 			completeTime: { type: DataTypes.DATE },
-			duration: { type: DataTypes.NUMBER }, // 持续时间（毫秒），顺便算出，方便后面统计，多多少少提高一点性能也好
-			// 此次开发业务: 事务可能是多种多样的，但是前端要过滤出“呼叫事务”，所以必须记录事务的开头事件、告警
-			// 继承第一个事件或告警，只是数据拷贝
-			type: { type: DataTypes.STRING, defaultValue: EVENT_TYPE.EVENT }, // 事件还是告警
+			duration: { type: DataTypes.NUMBER }, // duración (milisegundos), calculada para facilitar estadísticas y mejorar el rendimiento
+			// desarrollo de negocio actual: las transacciones pueden ser diversas, pero el frontend necesita filtrar las "transacciones de llamada", por lo que debe registrar el evento inicial y la alarma
+			// heredar del primer evento o alarma, solo copia de datos
+			type: { type: DataTypes.STRING, defaultValue: EVENT_TYPE.EVENT }, // evento o alarma
 			code: { type: DataTypes.NUMBER },
 			group: { type: DataTypes.STRING },
 			path: { type: DataTypes.STRING },
-			remarks: { type: DataTypes.STRING }, // 备注, 继承最后一个事件
-			title: { type: DataTypes.STRING }, // 标题，继承最后一个事件
-			originalPayload: { type: DataTypes.JSON }, // 原始信息, 继承最后一个事件
-			// sn(外键)
-			handler: { type: DataTypes.JSON } // 处理设备
+			remarks: { type: DataTypes.STRING }, // notas, heredadas del último evento
+			title: { type: DataTypes.STRING }, // título, heredado del último evento
+			originalPayload: { type: DataTypes.JSON }, // información original, heredada del último evento
+			// sn (clave externa)
+			handler: { type: DataTypes.JSON } // dispositivo de manejo
 		},
 		{
 			sequelize,

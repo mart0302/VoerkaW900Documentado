@@ -4,7 +4,7 @@ const APIError = require('../utils/APIError')
 const { env } = require('../../config/vars')
 
 /**
- * Error handler. Send stacktrace only during development
+ * Manejador de errores. Envía el stacktrace solo durante el desarrollo
  * @public
  */
 const handler = (err, req, res, next) => {
@@ -29,13 +29,13 @@ const handler = (err, req, res, next) => {
 exports.handler = handler
 
 /**
- * If error is not an instanceOf APIError, convert it.
+ * Si el error no es una instancia de APIError, convertirlo.
  * @public
  */
 exports.converter = (err, req, res, next) => {
 	let convertedError = err
 
-	// 数据校验没有通过
+	// La validación de datos no ha pasado
 	if (err instanceof expressValidation.ValidationError) {
 		convertedError = new APIError({
 			message: 'error.validate',
@@ -55,7 +55,7 @@ exports.converter = (err, req, res, next) => {
 }
 
 /**
- * Catch 404 and forward to error handler
+ * Captura error 404 y lo envía al manejador de errores
  * @public
  */
 exports.notFound = (req, res, next) => {

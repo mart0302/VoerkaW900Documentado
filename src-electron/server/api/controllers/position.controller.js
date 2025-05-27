@@ -4,7 +4,7 @@ const { mergeDeepRight } = require('../utils')
 
 const Model = $db.Position
 
-// 加载
+// Cargar
 exports.load = async (req, res, next, id) => {
 	try {
 		const data = await Model.findByPk(id)
@@ -18,7 +18,7 @@ exports.load = async (req, res, next, id) => {
 	}
 }
 
-// 获取
+// Obtener
 exports.get = async (req, res) => {
 	try {
 		const { data } = req.locals
@@ -29,7 +29,7 @@ exports.get = async (req, res) => {
 	}
 }
 
-// 新增
+// Crear nuevo
 exports.create = async (req, res, next) => {
 	try {
 		let data
@@ -40,7 +40,7 @@ exports.create = async (req, res, next) => {
 				})
 				req.body['orderNumber'] = orderNumber[0].max + 1
 			} else {
-				// 更新排序号
+				// Actualizar número de orden
 				const positions = await Model.findAll({ where: { orderNumber: { [Op.gte]: parseInt(req.body.orderNumber) } } })
 				if (positions.length) {
 					positions.map(post => {
@@ -51,7 +51,7 @@ exports.create = async (req, res, next) => {
 			data = await Model.create(req.body)
 		} catch (error) {
 			// SQLITE_CONSTRAINT: FOREIGN KEY constraint failed
-			// 404 外键未找到，即设备不存在
+			// Error 404: clave foránea no encontrada, es decir, el dispositivo no existe
 			throw $APIError.NotFound('error.device_not_found')
 		}
 		res.status(httpStatus.CREATED)
@@ -61,13 +61,13 @@ exports.create = async (req, res, next) => {
 	}
 }
 
-// 编辑
+// Editar
 exports.update = async (req, res, next) => {
 	const { data } = req.locals
 	const updateData = mergeDeepRight(data, req.body)
 	try {
 		if (updateData.orderNumber) {
-			// 更新排序号
+			// Actualizar número de orden
 			const conflictRow = await Model.findAll({
 				where: { orderNumber: { [Op.eq]: updateData.orderNumber }, id: { [Op.ne]: updateData.id } }
 			})
@@ -80,22 +80,22 @@ exports.update = async (req, res, next) => {
 				})
 			}
 		}
-		// 更新数据库
+		// Actualizar base de datos
 		await Model.update(updateData, { where: { id: data.id }, individualHooks: true })
-		// 查询结果
+		// Consultar resultado
 		const newData = await Model.findByPk(data.id)
-		// 返回
+		// Retornar
 		return res.json(newData)
 	} catch (error) {
 		return next(error)
 	}
 }
 
-// 删除
+// Eliminar
 exports.remove = async (req, res, next) => {
 	const { data } = req.locals
 	try {
-		// 先删除数据库记录
+		// Primero eliminar el registro de la base de datos
 		await Model.destroy({
 			where: { id: data.id },
 			individualHooks: true
@@ -106,11 +106,11 @@ exports.remove = async (req, res, next) => {
 	}
 }
 
-// 批量删除
+// Eliminar múltiples elementos
 exports.removeList = async (req, res, next) => {
 	const { ids = [] } = req.body
 	try {
-		// 删除数据库记录
+		// Eliminar registros de la base de datos
 		const rows = await Model.destroy({
 			where: { id: { [Op.in]: ids } },
 			individualHooks: true
@@ -123,11 +123,11 @@ exports.removeList = async (req, res, next) => {
 	}
 }
 
-// 获取列表
+// Obtener lista
 exports.list = async (req, res, next) => {
 	try {
 		let { limit, offset, ...query } = req.query
-		//  特别参数的定制查询
+		// Consulta personalizada para parámetros especiales
 		const qry = {}
 		if ('open' in query) {
 			qry.open = { [Op.eq]: query.open }

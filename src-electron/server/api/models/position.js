@@ -5,8 +5,8 @@ module.exports = sequelize => {
 		'Position',
 		{
 			type: { type: DataTypes.STRING },
-			title: { type: DataTypes.STRING }, // 中文标题
-			description: { type: DataTypes.STRING }, // 部门描述
+			title: { type: DataTypes.STRING }, // Título en español
+			description: { type: DataTypes.STRING }, // Descripción del puesto
 			code: { type: DataTypes.STRING },
 			open: {
 				type: DataTypes.BOOLEAN,
@@ -14,7 +14,7 @@ module.exports = sequelize => {
 			},
 			orderNumber: {
 				type: DataTypes.INTEGER
-			}, // 显示顺序
+			}, // Orden de visualización
 			createdBy: {
 				type: DataTypes.JSON,
 				defaultValue: {}

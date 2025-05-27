@@ -1,4 +1,4 @@
-/* 表排班组 */
+/* Grupo de programación de turnos */
 const { DataTypes } = require('sequelize')
 
 module.exports = sequelize => {
@@ -8,10 +8,10 @@ module.exports = sequelize => {
 			type: { type: DataTypes.STRING },
 			start: { type: DataTypes.DATE, defaultValue: new Date() },
 			end: { type: DataTypes.DATE, defaultValue: new Date() },
-			type: { type: DataTypes.STRING }, //  资源类型
-			ranges: { type: DataTypes.JSON }, // 排班时间范围
-			nodeId: { type: DataTypes.NUMBER }, // 绑定节点
-			// 以下数据仅做保留，其实没有用
+			type: { type: DataTypes.STRING }, // Tipo de recurso
+			ranges: { type: DataTypes.JSON }, // Rangos de tiempo para la programación
+			nodeId: { type: DataTypes.NUMBER }, // Nodo vinculado
+			// Los siguientes datos se mantienen solo como reserva, realmente no se usan
 			image: { type: DataTypes.STRING },
 			createdBy: { type: DataTypes.JSON, defaultValue: {} }
 		},

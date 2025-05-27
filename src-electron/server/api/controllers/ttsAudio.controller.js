@@ -1,5 +1,5 @@
 /**
- * tts数据更新hook
+ * Hook de actualización de datos TTS
  */
 const path = require('path')
 const fse = require('fs-extra')
@@ -8,7 +8,7 @@ const { tts: ttsConfig } = uploadConfig
 const { destination } = ttsConfig
 const ttsPath = appPath.resolve.data(destination)
 
-// tts新增时查找是否需要发通知给网关
+// Al crear un nuevo TTS, verificar si es necesario enviar una notificación a la puerta de enlace
 $db.TtsAudio.addHook('afterCreate', async (ttsAudio, options) => {
 	const validAudios = await $db.TtsAudio.findAll({
 		where: { gatewaySn: ttsAudio.gatewaySn, status: false },
@@ -32,7 +32,7 @@ $db.TtsAudio.addHook('afterCreate', async (ttsAudio, options) => {
 	}
 })
 
-// tts更新时查找是否需要发通知给网关
+// Al actualizar un TTS, verificar si es necesario enviar una notificación a la puerta de enlace
 $db.TtsAudio.addHook('afterUpdate', async (ttsAudio, options) => {
 	const validAudios = await $db.TtsAudio.findAll({
 		where: { gatewaySn: ttsAudio.gatewaySn, status: false },
@@ -56,10 +56,10 @@ $db.TtsAudio.addHook('afterUpdate', async (ttsAudio, options) => {
 	}
 })
 
-// tts删除记录，删除相关文件
+// Al eliminar un registro TTS, eliminar los archivos relacionados
 $db.TtsAudio.addHook('afterDestroy', async (ttsAudio, options) => {
 	const { fileName } = ttsAudio
-	// 删除证书文件
-	// 删除文件
+	// Eliminar archivo de certificado
+	// Eliminar archivo
 	fse.removeSync(path.join(ttsPath, fileName))
 })

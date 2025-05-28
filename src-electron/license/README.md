@@ -1,34 +1,31 @@
-# 证书
+# Certificado
 
-## 证书监听器
+## Vigilante de Certificados
 
 http://192.168.38.165:9000/voerka/voerkalicensewatcher
 
+## Problema de Compilación
 
-
-## 编译问题
-
-证书监听器代码编译完后，放到electron里面执行，会报错；
+Tras compilar el código del vigilante de certificados, se ejecutará en Electron y se informará un error.
 
 https://github.com/bytenode/bytenode/issues/63
 
-**原因**：
+**Motivo**:
 
-`electron内部的nodejs环境`与`外部编译的nodejs环境`不匹配导致
+El entorno de Node.js dentro de Electron no coincide con el entorno de Node.js compilado externamente.
 
-**解决方案**：
+**Solución**:
 
-将原本外部编译的过程也放到electron主进程中编译
+Incorpore el proceso de compilación externo original al proceso principal de Electron para la compilación.
 
-**目前如何编译**:
+**Cómo compilar ahora**:
 
-1. 将环境变量的`LICENSE_BUILD`设置`true`，启动项目，等待日志输出提示，关闭项目运行；
+1. Establezca `LICENSE_BUILD` de la variable de entorno en `true`, inicie el proyecto, espere el aviso de salida del registro y cierre la ejecución del proyecto.
 
-2. 再将`LICENSE_BUILD`改回`false`；
+2. Cambie `LICENSE_BUILD` de nuevo a `false`.
 
-P.S. 编译只需执行一次，如果你没有修改升级证书监听器的代码，没必要编译，只管用就行了
+P. D. La compilación solo se realiza una vez. Si no ha modificado el código para actualizar el detector de certificados, no es necesario compilarlo, simplemente úselo.
 
-**升级证书监听器**：
+**Actualizar el detector de certificados**:
 
-拉取代码，将`src.js`替换`src-electron/license/build/src.js`即可，然后`使用electron重新编译`即可
-
+Extraiga el código, reemplace `src.js` por `src-electron/license/build/src.js` y luego `recompile using electron`.

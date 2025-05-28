@@ -1,5 +1,5 @@
 /**
- * easy-electron配置文件
+ * easy-electron configuration file
  */
 const fs = require('fs')
 const path = require('path')
@@ -7,67 +7,67 @@ const path = require('path')
 const resolve = target => path.resolve(__dirname, target)
 
 module.exports = {
-	// 版本2
+	// Version 2
 	version: 2,
 
-	// 脚本配置
+	// Script configuration
 	scripts: {
-		serve: 'dev', // 开发环境服务器
-		build: 'build' // 打包
+		serve: 'dev', // Development server
+		build: 'build' // Build
 	},
 
-	// 【逻辑已覆盖】项目运行地址
+	// [Logic overridden] Project runtime address
 	server: {
-		host: 'localhost', // 默认localhost
-		port: 3000, // 前端运行端口
-		useInProd: false // 生产环境随机获取端口【本项目配置无效】
+		host: 'localhost', // Default localhost
+		port: 3000, // Frontend running port
+		useInProd: false // Random port in production [this project setting is ineffective]
 	},
 
-	// 项目运行相关
+	// Random port in production [this project setting is ineffective]
 	run: {
-		// chokidar监听
+		// Vigilancia con chokidar
 		watcher: {
 			dir: 'src-electron',
 			options: {
 				ignored: [resolve('./src-electron/server')]
 			},
-			debounce: 500
+			debounce: 500 // Tiempo de espera antes de ejecutar tras detectar cambios
 		}
 	},
 
-	// 项目打包位置
+	// Ubicaciones de empaquetado del proyecto
 	build: {
-		inDir: 'dist',
-		outDir: 'dist_electron',
-		cacheDir: 'dist_cache', // electron打包缓存目录，防止每次打包都下载依赖
-		cacheIgnoreDeps: true
+		inDir: 'dist', // Carpeta de entrada (archivos a empaquetar)
+		outDir: 'dist_electron', // Carpeta de salida (resultado del empaquetado)
+		cacheDir: 'dist_cache',// Carpeta de caché para evitar descargar dependencias en cada empaquetado// electron打包缓存目录，防止每次打包都下载依赖
+		cacheIgnoreDeps: true // Ignorar dependencias en la caché
 	},
 
-	// 钩子
+	// Ganchos (hooks)
 	hooks: {
-		// easy-electron项目启动
+		// Al iniciar el proyecto con easy-electron
 		start({ logger }) {
-			// 判断extraFiles是否包含emqx，否则提示让代码打包者去下载解压
+			// Verificar si extraFiles contiene emqx, si no, advertir al empaquetador que debe descargarlo y descomprimirlo
 			/*
 			const emqxPath = resolve('./extraFiles/emqx')
 			const emqxDlUrl = 'https://www.emqx.cn/downloads/broker/v4.1.5/emqx-windows-v4.1.5.zip'
 			if (!fs.existsSync(emqxPath)) {
-				logger.warn(`缺少"emqx"，请确保"${emqxPath}"存在\n`)
-				logger.fatal(`请自行下载"${emqxDlUrl}"，并解压至该目录下\n`)
+				logger.warn(`Falta "emqx", asegúrese de que exista "${emqxPath}"\n`)
+				logger.fatal(`Por favor descargue manualmente "${emqxDlUrl}" y descomprímalo en ese directorio\n`)
 			}
-      */
-			// 由于emqx有问题，所以改为采用aedes作为mqtt服务端，代码仍保留，但是注释掉；改动详情请见2021.8.4的git提交记录
+			*/
+			// Debido a problemas con emqx, se utiliza aedes como servidor MQTT. El código se mantiene pero está comentado; para más detalles, consulte el historial de git del 4 de agosto de 2021
 		},
-		// easy-electron run执行
+		// Al ejecutar easy-electron run
 		runStart() {},
-		// easy-electron build执行
+		// Al iniciar el proceso de empaquetado con easy-electron build
 		buildStart() {},
 		buildEnd() {},
 		end() {}
 	},
 
-	// electron 打包
-	bundler: 'builder', // 'packager' or 'builder', 目前只支持builder
+	// Configuración de empaquetado de Electron
+	bundler: 'builder',  // 'packager' o 'builder', actualmente solo se soporta builder
 
 	packager: {
 		// https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
@@ -82,42 +82,42 @@ module.exports = {
 
 	builder: {
 		// https://www.electron.build/configuration/configuration
-		appId: 'com.hyt.voerka.w900', // 应用id
-		productName: 'VoerkaW900', // 产品名称，也是生成的安装文件名，即xxx.exe
-		copyright: 'HYT Copyright © 2021', // 版权信息
-		asar: true, // asar 打包
-		extraFiles: ['./extraFiles', './data', './dist', '.env', '.env.example'], // 额外文件，直接拷贝到exe同级目录
+		appId: 'com.hyt.voerka.w900', // ID de la aplicación
+		productName: 'VoerkaW900',  // Nombre del producto, también usado como nombre del instalador (ej. xxx.exe)
+		copyright: 'HYT Copyright © 2021', // Información de copyright
+		asar: true, // Empaquetar con asar
+		extraFiles: ['./extraFiles', './data', './dist', '.env', '.env.example'], // Archivos adicionales, copiados al mismo directorio que el .exe
 		win: {
-			// win相关配置
-			icon: 'public/favicon.ico', // 图标，当前图标在根目录下，注意这里有两个坑
-			// requestedExecutionLevel: 'highestAvailable', //获取管理员权限
+			// Configuración específica de Windows
+			icon: 'public/favicon.ico', // Icono, asegúrese de que esté bien ubicado (puede haber problemas aquí)
+			// requestedExecutionLevel: 'highestAvailable', // Solicitar permisos de administrador
 			target: [
 				{
-					target: 'nsis', // 利用nsis制作安装程序
+					target: 'nsis',  // Usar NSIS para crear el instalador
 					arch: [
-						'x64' // 64位
-						// 'ia32' // 32位
+						'x64' // Arquitectura de 64 bits
+						// 'ia32' // Arquitectura de 32 bits
 					]
 				}
 			]
 		},
 		nsis: {
-			oneClick: false, // 是否一键安装
-			allowElevation: true, // 允许请求提升。 如果为false，则用户必须使用提升的权限重新启动安装程序
-			allowToChangeInstallationDirectory: true, // 允许修改安装目录
-			include: 'build/installer.nsh', // 安装目录配置
-			installerIcon: 'public/favicon.ico', // 安装图标
-			uninstallerIcon: 'public/favicon.ico', // 卸载图标
-			installerHeaderIcon: 'public/favicon.ico', // 安装时头部图标
+			oneClick: false, // Instalación en un solo clic
+			allowElevation: true, // Permitir solicitar privilegios elevados (administrador)
+			allowToChangeInstallationDirectory: true, // Permitir cambiar el directorio de instalación
+			include: 'build/installer.nsh', // Archivo NSH para configuración del instalador
+			installerIcon: 'public/favicon.ico', // Icono del instalador
+			uninstallerIcon: 'public/favicon.ico', // Icono del desinstalador
+			installerHeaderIcon: 'public/favicon.ico', // Icono en la cabecera del instalador
 			// deleteAppDataOnUninstall: true,
 			// warningsAsErrors: false,
-			createDesktopShortcut: true, // 创建桌面图标
-			createStartMenuShortcut: true, // 创建开始菜单图标
-			shortcutName: 'VoerkaW900' // 图标名称(项目名称)
+			createDesktopShortcut: true, // Crear acceso directo en el escritorio
+			createStartMenuShortcut: true, // Crear acceso directo en el menú de inicio
+			shortcutName: 'VoerkaW900' // Nombre del acceso directo (nombre del proyecto)
 		}
 	},
 
-	// background 打包依赖项
+	// Dependencias necesarias para el empaquetado del backend
 	dependencies: [
 		'aedes',
 		'aedes-server-factory',

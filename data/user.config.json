@@ -1,0 +1,16 @@
+{
+	"projectTitle": "Voerka W900",
+	"projectLogo": "",
+	"sequelizeLogging": false,
+	"port": 5000,
+	"host": "127.0.0.1",
+	"domain": "hispro",
+	"mqttPort": 1883,
+	"interface": "",
+	"mqttUsername": "",
+	"mqttPassword": "",
+	"databaseVersion": 1,
+	"annotation": {
+		"domain": "注意: domain改变将导致所有认证的设备失效，需要重新手动认证!!!"
+	}
+}

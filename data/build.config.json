@@ -1,0 +1,6 @@
+{
+	"languages": ["zh", "en", "ru", "fr", "ar", "es", "pt", "de", "tr", "pl", "ja"],
+	"default": "zh",
+	"showLoginTitle": true,
+	"showHomeLogo": true
+}

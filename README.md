@@ -25,12 +25,13 @@ Aplicación de escritorio construida con Electron que consume un frontend modern
 Se requieren dos terminales abiertas:
 
 ### Terminal 1 - Frontend
-    ```bash
+    ```
     cd frontend
     npm run dev
-
+    ```
 ### Terminal 2 - Electron
-    ```bash
+    ```
     npm run dev:electron
+    ```
 
 >⏳ Nota: La primera ejecución puede tardar varios segundos mientras se compilan ambos proyectos.

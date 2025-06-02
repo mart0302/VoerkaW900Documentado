@@ -24,12 +24,12 @@ Aplicación de escritorio construida con Electron que consume un frontend modern
 ## ▶️ Ejecución en desarrollo
 Se requieren dos terminales abiertas:
 
-###Terminal 1 - Frontend
+### Terminal 1 - Frontend
     ```bash
     cd frontend
     npm run dev
 
-###Terminal 2 - Electron
+### Terminal 2 - Electron
     ```bash
     npm run dev:electron
 
